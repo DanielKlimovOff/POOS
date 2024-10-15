@@ -68,10 +68,9 @@
         }
         
         const firstName = sessionStorage.getItem('firstName');
-        const lastName = sessionStorage.getItem('lastName');
         
-        if (firstName && lastName) {
-            document.getElementById('welcomeMessage').innerText = `${firstName} ${lastName}`;
+        if (firstName) {
+            document.getElementById('welcomeMessage').innerText = `${firstName}`;
         } else {
             window.location.href = '/register/home.html';
         }
