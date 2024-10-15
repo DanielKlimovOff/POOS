@@ -57,12 +57,13 @@
         
             document.getElementById('res').innerText = 'Result: ' + result;
         
-            saveOperation(`${num1} ${operation} ${num2} = ${result}`);
+            saveOperation(`${firstName} : ${num1} ${operation} ${num2} = ${result}`);
         }
         
         function saveOperation(operation) {
             const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
             history.push(operation);
+            
             sessionStorage.setItem('operationHistory', JSON.stringify(history));
         }
         
