@@ -4,7 +4,7 @@ async function submitbtn() {
     let val2 = +document.getElementById("2").value;
 
     const response = await fetch("http://localhost:3030/", {
-        method: "POST",
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
