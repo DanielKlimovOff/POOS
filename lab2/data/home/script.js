@@ -1,4 +1,4 @@
-async function submitbtn() {
+/*async function submitbtn() {
     let operation = document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
@@ -25,7 +25,56 @@ async function submitbtn() {
     console.log(json);
 
     label.innerHTML = "Result:" + json.value;
+    saveOperation(`${num1} ${operation} ${num2} = ${result}`);
 
+    function saveOperation(operation) {
+        const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
+        history.push(operation);
+        sessionStorage.setItem('operationHistory', JSON.stringify(history));
+    }*/
+        function submitbtn() {
+            const num1 = parseFloat(document.getElementById('1').value);
+            const num2 = parseFloat(document.getElementById('2').value);
+            const operation = document.getElementById('operations').value;
+            let result;
+        
+            switch (operation) {
+                case '+':
+                    result = num1 + num2;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    break;
+                case '/':
+                    result = num1 / num2;
+                    break;
+                default:
+                    result = 'Invalid operation';
+            }
+        
+            document.getElementById('res').innerText = 'Result: ' + result;
+        
+            saveOperation(`${num1} ${operation} ${num2} = ${result}`);
+        }
+        
+        function saveOperation(operation) {
+            const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
+            history.push(operation);
+            sessionStorage.setItem('operationHistory', JSON.stringify(history));
+        }
+        
+        const firstName = sessionStorage.getItem('firstName');
+        const lastName = sessionStorage.getItem('lastName');
+        
+        if (firstName && lastName) {
+            document.getElementById('welcomeMessage').innerText = `${firstName} ${lastName}`;
+        } else {
+            window.location.href = '/register/home.html';
+        }
+    
 
     // console.log('hello');
     // let operation = document.getElementById("operations");
