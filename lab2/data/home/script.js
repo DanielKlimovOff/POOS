@@ -1,7 +1,26 @@
-/*async function submitbtn() {
+async function submitbtn() {
     let operation = document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
+    let firstname=document.getElementById("firstName").value;
+    let result;
+
+    switch (operation) {
+        case '+':
+            result = val1 + val2;
+            break;
+        case '-':
+            result = val1 - val2;
+            break;
+        case '*':
+            result = val1 * val2;
+            break;
+        case '/':
+            result = val1 / val2;
+            break;
+        default:
+            result = 'Invalid operation';
+    }
 
     const response = await fetch("http://localhost:3030/", {
         method: "POST",
@@ -18,62 +37,22 @@
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }
-  
+
     let label = document.getElementById("res");
 
     const json = await response.json();
     console.log(json);
 
-    label.innerHTML = "Result:" + json.value;
-    saveOperation(`${num1} ${operation} ${num2} = ${result}`);
+    label.innerHTML = "Result: " + json.value;
+
+    saveOperation(`${firstname} : ${val1} ${operation} ${val2} = ${result}`);
 
     function saveOperation(operation) {
         const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
         history.push(operation);
         sessionStorage.setItem('operationHistory', JSON.stringify(history));
-    }*/
-        function submitbtn() {
-            const num1 = parseFloat(document.getElementById('1').value);
-            const num2 = parseFloat(document.getElementById('2').value);
-            const operation = document.getElementById('operations').value;
-            let result;
-        
-            switch (operation) {
-                case '+':
-                    result = num1 + num2;
-                    break;
-                case '-':
-                    result = num1 - num2;
-                    break;
-                case '*':
-                    result = num1 * num2;
-                    break;
-                case '/':
-                    result = num1 / num2;
-                    break;
-                default:
-                    result = 'Invalid operation';
-            }
-        
-            document.getElementById('res').innerText = 'Result: ' + result;
-        
-            saveOperation(`${firstName} : ${num1} ${operation} ${num2} = ${result}`);
-        }
-        
-        function saveOperation(operation) {
-            const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
-            history.push(operation);
-            
-            sessionStorage.setItem('operationHistory', JSON.stringify(history));
-        }
-        
-        const firstName = sessionStorage.getItem('firstName');
-        
-        if (firstName) {
-            document.getElementById('welcomeMessage').innerText = `${firstName}`;
-        } else {
-            window.location.href = '/register/home.html';
-        }
+    }
+}
 
     // console.log('hello');
     // let operation = document.getElementById("operations");

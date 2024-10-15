@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Calculator</title>
-    <link href="home.css" rel="stylesheet">
+    <link href="/register/home.css" rel="stylesheet">
     <script src="script.js"></script>
 </head>
 <body>
@@ -29,8 +29,14 @@
             window.location.href = '/register/home.html';
         }
     </script>
+    
     <label id="res">Result:</label>
-    <button><a href="/history/home.html">History</a></button>
+    <button class="hisbtn" onclick="historypage()">History</button>
+    <script>
+            function historypage(){
+                window.location.href='/history/home.html';
+            }
+        </script>
     </div>
 </body>
 </html>
