@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Calculator</title>
+    <link href="home.css" rel="stylesheet">
+    <script src="../../../lab1/files/script.js"></script>
+</head>
+<body>
+    <div class="container">
+    <h1>Calculator</h1>
+        <input id="1" type="number">
+        <select id="operations">
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="*">*</option>
+            <option value="/">/</option>
+        </select>
+
+        <input id="2" type="number">
+    <button onclick="submitbtn()">Submit</button>
+    <script>
+	const firstName = sessionStorage.getItem('firstName');
+        const lastName = sessionStorage.getItem('lastName');
+
+        if (firstName && lastName) {
+            document.getElementById('welcomeMessage').innerText = `${firstName} ${lastName}`;
+        } else {
+            // Если пользователь не зарегистрирован, перенаправляем на страницу регистрации
+            window.location.href = 'lab2/data/register/home.html';
+        }
+    </script>
+    <label id="res">Result:</label>
+    </div>
+</body>
+</html>
