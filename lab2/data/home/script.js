@@ -74,7 +74,6 @@
         } else {
             window.location.href = '/register/home.html';
         }
-    
 
     // console.log('hello');
     // let operation = document.getElementById("operations");
@@ -115,4 +114,3 @@
     //     label.innerHTML = "Result:" + sum;
 
     // }
-}
