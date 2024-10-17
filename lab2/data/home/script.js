@@ -27,7 +27,7 @@ async function submitbtn() {
         body: JSON.stringify({
             num1: val1,
             num2: val2,
-            operator_id: 0,
+            operator_id: operation,
             result: null,
         }),
     });

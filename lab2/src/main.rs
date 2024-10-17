@@ -274,27 +274,28 @@ mod handlers {
         println!("hash123 - {}", session_hash.clone());
         let mut result_data = CalculateJson {
             num1: input_data.num1,
-            num2: input_data.num2,
+            num2: input_data.num2,  
             operator_id: input_data.operator_id,
             result: None,
         };
 
         match input_data.operator_id {
-            0 => result_data.result = Some(result_data.num1 + result_data.num2),
-            1 => result_data.result = Some(result_data.num1 - result_data.num2),
-            2 => result_data.result = Some(result_data.num1 * result_data.num2),
-            3 => result_data.result = Some(result_data.num1 / result_data.num2),
+            1 => result_data.result = Some(result_data.num1 + result_data.num2),
+            2 => result_data.result = Some(result_data.num1 - result_data.num2),
+            3 => result_data.result = Some(result_data.num1 * result_data.num2),
+            4 => result_data.result = Some(result_data.num1 / result_data.num2),
             _ => result_data.result = None,
         }
 
         let session_info = get_session_info(db.clone(), session_hash).await;
 
         if let Err(mes) = session_info {
-            println!("{mes:?}");
+            println!("sql huinay {mes:?}");
             return Ok("SESSION GET ERRROR not found session".into_response());
         }
 
         let session_info = session_info.unwrap();
+        pr
 
         let db_response = db.lock().await.execute("insert into calculations (num1, num2, operator_id, result, session_id, user_id) values (?1, ?2, ?3, ?4, ?5, ?6);", params![
             &result_data.num1,
@@ -308,7 +309,7 @@ mod handlers {
         match db_response {
             Ok(_) => Ok(warp::reply::json(&result_data).into_response()),
             Err(massage) => {
-                println!("{massage:?}");
+                println!("sql another huinya {massage:?}");
                 Ok(warp::reply::with_status("ERROR_WITH_DB", StatusCode::INTERNAL_SERVER_ERROR).into_response())
             },
         }
