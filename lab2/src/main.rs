@@ -75,7 +75,7 @@ mod models {
         pub session_id: i32,
         pub user_id: Option<i32>,
     }
-    
+
 
     pub fn open_db(name_db: &str) -> Database {
         let db = Connection::open(name_db).unwrap();
@@ -322,6 +322,8 @@ mod handlers {
 
     pub async fn login(session_hash: String, login_data: TestLoginJson, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
         let user_info = get_player_info_by_login(db.clone(), login_data).await;
+
+        println!("{user_info:?}");
 
         match user_info {
             Ok(user_info) => {
