@@ -6,6 +6,7 @@ body {
         align-items: center;
         height: 100vh;
         margin: 0;
+        text-align: center;
 }
         .container {
             background: white;
@@ -44,4 +45,4 @@ body {
         input[type="submit"]:hover {
             background-color: #218838;
         }
-       
+        

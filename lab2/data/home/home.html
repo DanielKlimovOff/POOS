@@ -9,6 +9,7 @@
 <body>
     <div class="container">
     <h1>Calculator</h1>
+    <h2 id="name">Hello</h2>
         <input id="1" type="number">
         <select id="operations">
             <option value="+">+</option>
@@ -18,21 +19,25 @@
         </select>
 
         <input id="2" type="number">
-    <!--<button onclick="submitbtn()">Submit</button> -->
-    <button onclick="regbtn()">Sign up</button>
-    <script>
-        function regbtn(){
-            window.location.href="/register";
-        }
-    </script>
+    <div class="subcontainer">
+        <button onclick="submitbtn()">Submit</button>
+    
     
     <label id="res">Result:</label>
-    <button class="hisbtn" onclick="historypage()">History</button>
-    <script>
-            function historypage(){
-                window.location.href='/history/home.html';
+    
+        <button onclick="regbtn()">Sign up</button>
+        <script>
+            function regbtn(){
+                window.location.href="/register";
             }
         </script>
+        <button class="hisbtn" onclick="historypage()">History</button>
+        <script>
+                function historypage(){
+                    window.location.href='/history';
+                }
+            </script>
+    </div>
     </div>
 </body>
 </html>

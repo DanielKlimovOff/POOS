@@ -1,9 +1,24 @@
+async function naming(name){
+    const response = await fetch("/api/session_info", {
+        method: "GET",
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+    let header=getElementById("name");
+    const data=await response.json();
+    console.log(data);
+
+    header.innerHTML="Hello"+ data.value;
+    
+}
 async function submitbtn() {
     let operation = document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
 
-    const response = await fetch("http://localhost:3030/", {
+    const response = await fetch("/api/calculate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

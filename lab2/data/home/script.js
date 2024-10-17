@@ -1,8 +1,22 @@
+async function naming(name){
+    const response = await fetch("http://localhost:2017/api/session_info", {
+        method: "GET",
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+    let header=getElementById("name");
+    const data=await response.json();
+    console.log(data);
+
+    header.innerHTML="Hello"+ data.value;
+    
+}
 async function submitbtn() {
     let operation = document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
-    let firstname= +document.getElementById("firstName").value;
     let result;
 
     switch (operation) {
@@ -22,7 +36,7 @@ async function submitbtn() {
             result = 'Invalid operation';
     }
 
-    const response = await fetch("http://localhost:3030/", {
+    const response = await fetch("http://localhost:2017/api/calculate/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -31,6 +45,7 @@ async function submitbtn() {
             value1: val1,
             value2: val2,
             operation: operation,
+            result: null,
         }),
     });
 
@@ -45,7 +60,7 @@ async function submitbtn() {
 
     label.innerHTML = "Result: " + json.value;
 
-    saveOperation(`${firstname} : ${val1} ${operation} ${val2} = ${result}`);
+    saveOperation(`${val1} ${operation} ${val2} = ${result}`);
 
     function saveOperation(operation) {
         const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];

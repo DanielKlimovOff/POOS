@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Calculator History</title>
-    <link href="/home/home.css" rel="stylesheet">
-    <script src="/home/script.js"></script>
+    <link href="/data/home/home.css" rel="stylesheet">
+    <script src="/data/home/script.js"></script>
     
 </head>
 <body>
@@ -13,7 +13,12 @@
 
         <ul id="history"></ul>
         <button onclick="clearHistory()">Clear History</button>
-        <button><a href="/home/home.html">Back</a></button>
+        <button onclick="backbtn()">Back</button>
+        <script>
+            function backbtn(){
+                window.location.href="/";
+            }
+        </script>
     </div>
     <script>
         

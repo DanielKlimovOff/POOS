@@ -5,7 +5,7 @@ document.getElementById('registrationForm').addEventListener('submit', async fun
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch("http://localhost:3030/register", {
+        const response = await fetch("http://localhost:2017/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
