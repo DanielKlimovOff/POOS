@@ -39,6 +39,11 @@ mod models {
     }
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub struct HistoryJson {
+        pub history: Vec<Calculation>,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone)]
     pub struct TestLoginJson {
         pub name: String,
         pub password: String,
@@ -70,6 +75,7 @@ mod models {
         pub session_id: i32,
         pub user_id: Option<i32>,
     }
+    
 
     pub fn open_db(name_db: &str) -> Database {
         let db = Connection::open(name_db).unwrap();
@@ -261,7 +267,7 @@ mod filters {
 }
 
 mod handlers {
-    use crate::models::{CalculateJson, Database, Session, TestLoginJson, User, Calculation};
+    use crate::models::{CalculateJson, Calculation, Database, HistoryJson, Session, TestLoginJson, User};
     use http::Error;
     use warp::reply::Reply;
     use warp::http::StatusCode;
@@ -290,7 +296,7 @@ mod handlers {
         let session_info = get_session_info(db.clone(), session_hash).await;
 
         if let Err(mes) = session_info {
-            println!("sql huinay {mes:?}");
+            println!("sql  {mes:?}");
             return Ok("SESSION GET ERRROR not found session".into_response());
         }
 
@@ -308,7 +314,7 @@ mod handlers {
         match db_response {
             Ok(_) => Ok(warp::reply::json(&result_data).into_response()),
             Err(massage) => {
-                println!("sql another huinya {massage:?}");
+                println!("sql another {massage:?}");
                 Ok(warp::reply::with_status("ERROR_WITH_DB", StatusCode::INTERNAL_SERVER_ERROR).into_response())
             },
         }
@@ -372,16 +378,21 @@ mod handlers {
         }
         let session_info = session_info.unwrap();
 
-        if session_info.is_auth {
+        let history;
 
+        if session_info.is_auth {
+            history = get_history_by_session(db.clone(), session_info.id);
         } else {
-            get_history_by_session(db.clone(), session_info.id);
+            history = get_history_by_session(db.clone(), session_info.id);
         }
 
-        Ok(warp::reply::json(&session_info).into_response())
+        match history.await {
+            Ok(history) => Ok(warp::reply::json(&history).into_response()),
+            Err(err) => Ok(warp::reply::with_header(warp::reply::with_status("HISTORY ERROR", StatusCode::INTERNAL_SERVER_ERROR), "err message", err.to_string()).into_response())
+        }
     }
 
-    async fn get_history_by_session(db: Database, session_id: i32) -> Result<Vec<Calculation>, rusqlite::Error> {
+    async fn get_history_by_session(db: Database, session_id: i32) -> Result<HistoryJson, rusqlite::Error> {
         let db = db.lock().await;
         let mut stmt = db.prepare("select id, num1, num2, operator_id, result, session_id, user_id from calculations where session_id=?1")?;
         let history = stmt.query_map(params![session_id], |row| {
@@ -396,7 +407,7 @@ mod handlers {
             })
         })?;
         let history: Vec<Calculation> = history.map(|e| e.unwrap()).collect();
-        Ok(history)
+        Ok(HistoryJson { history })
     }
 
     async fn get_player_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {

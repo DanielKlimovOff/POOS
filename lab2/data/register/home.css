@@ -33,7 +33,7 @@ body {
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        input[type="submit"] {
+        button.color {
             background-color: #28a745;
             color: white;
             border: none;

@@ -30,14 +30,30 @@
             if (!response.ok) {
                 throw new Error(`Response status: ${response.status}`);
             }
-            
+            historyList=document.getElementById("history");
+            historyList.innerHTML='';
             const history = await response.json();
             //const trimmed =`${response.history[0].num1} ${}`;
-            /*history.forEach(response => {
+            history.history.forEach(response => {
                 const li = document.createElement('li');
-                li.textContent = ;
+                switch (response.operator_id){
+                    case 1:
+                        response.operator_id="+";
+                        break;
+                    case 2:
+                        response.operator_id="-";
+
+                        break;
+                    case 3:
+                        response.operator_id="*";
+                        break;
+                    case 4:
+                        response.operator_id="/";
+                        break;
+                }
+                li.textContent = `${response.num1} ${response.operator_id} ${response.num2} ${response.result}`;
                 historyList.appendChild(li);
-            });*/
+            });
             
             console.log(history);
             //console.log(trimmed);

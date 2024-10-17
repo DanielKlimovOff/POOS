@@ -52,10 +52,33 @@ async function saveOperation(operation) {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-        
+
         const history = await response.json();
         const trimmed = `${json.num1} ${json.operator_id} ${json.num2}${json.result}`;
         console.log(history);
+}
+
+
+async function login(){
+
+    let firstName=document.getElementById("firstName");
+    let password=document.getElementById("password");
+    const response = await fetch("http://localhost:2017/api/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            name: firstName,
+            password: password,
+        }),
+    });
+    if (!response.ok) {
+        let label =document.getElementById("message");
+        label.innerHTML="Inccorrect password or login!";
+        
+    }
+    
 }
 
 
