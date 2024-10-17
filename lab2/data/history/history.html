@@ -12,7 +12,7 @@
         <h1>Operation History</h1>
 
         <ul id="history"></ul>
-        <button onclick="clearHistory()">Clear History</button>
+        <!--<button onclick="clearHistory()">Clear History</button>-->
         <button onclick="backbtn()">Back</button>
         <script>
             function backbtn(){
@@ -22,22 +22,38 @@
     </div>
     <script>
         
-        function displayHistory() {
-            const historyList = document.getElementById('history');
-            historyList.innerHTML = ''; 
-            const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
+        async function displayHistory() {  
+            const response = await fetch("http://localhost:2017/api/history", {
+                method: "GET",
+            });
             
-            history.forEach(operation => {
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            
+            const history = await response.json();
+            //const trimmed =`${response.history[0].num1} ${}`;
+            /*history.forEach(response => {
+                const li = document.createElement('li');
+                li.textContent = ;
+                historyList.appendChild(li);
+            });*/
+            
+            console.log(history);
+            //console.log(trimmed);
+        }
+            
+            
+            /*history.forEach(operation => {
                 const li = document.createElement('li');
                 li.textContent = operation;
                 historyList.appendChild(li);
-            });
-        }
+            });*/
 
-        function clearHistory() {
+        /*function clearHistory() {
             sessionStorage.removeItem('operationHistory');
             displayHistory();
-        }
+        }*/
 
         window.onload = displayHistory;
     </script>

@@ -295,7 +295,6 @@ mod handlers {
         }
 
         let session_info = session_info.unwrap();
-        pr
 
         let db_response = db.lock().await.execute("insert into calculations (num1, num2, operator_id, result, session_id, user_id) values (?1, ?2, ?3, ?4, ?5, ?6);", params![
             &result_data.num1,

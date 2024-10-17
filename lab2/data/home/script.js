@@ -17,7 +17,7 @@ async function submitbtn() {
     let operation = +document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
-    
+    let result;
 
     const response = await fetch("http://localhost:2017/api/calculate", {
         method: "POST",
@@ -40,17 +40,24 @@ async function submitbtn() {
 
     const json = await response.json();
     console.log(json);
-
     label.innerHTML = "Result: " + json.result;
 
-    // saveOperation(`${val1} ${operation} ${val2} = ${result}`);
-
-    // function saveOperation(operation) {
-    //     const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
-    //     history.push(operation);
-    //     sessionStorage.setItem('operationHistory', JSON.stringify(history));
-    // }
+    saveOperation(`${val1} ${operation} ${val2} = ${result}`);
 }
+async function saveOperation(operation) {
+        const response = await fetch("http://localhost:2017/api/history", {
+            method: "GET",
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        
+        const history = await response.json();
+        const trimmed = `${json.num1} ${json.operator_id} ${json.num2}${json.result}`;
+        console.log(history);
+}
+
 
     // console.log('hello');
     // let operation = document.getElementById("operations");
