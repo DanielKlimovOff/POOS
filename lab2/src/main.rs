@@ -61,14 +61,14 @@ mod models {
     }
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
-    struct Calculation {
-        id: i32,
-        num1: f64,
-        num2: f64,
-        operator_id: i32,
-        result: f64,
-        session_id: i32,
-        user_id: Option<i32>,
+    pub struct Calculation {
+        pub id: i32,
+        pub num1: f64,
+        pub num2: f64,
+        pub operator_id: i32,
+        pub result: f64,
+        pub session_id: i32,
+        pub user_id: Option<i32>,
     }
 
     pub fn open_db(name_db: &str) -> Database {
@@ -117,20 +117,16 @@ mod filters {
             calculate(db.clone())
             .or(delete_cookies(db.clone()))
             .or(login(db.clone()))
+            .or(logout())
+            .or(history(db.clone()))
+            .or(session_info(db.clone()))
         )
-            // .recover( |err| async {
-            //     Ok(warp::reply::with_status("ERROR", StatusCode::CONTINUE))
-            // })
-                // .or(login(db.clone())) 
-                // .or(register(db.clone()))
-                // .or(history(db.clone()))
-        // )
     }
 
     pub fn calculate(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path("calculate")
             .and(warp::path::end())
-            .and(warp::get())
+            .and(warp::post())
             .and(warp::cookie("session_hash"))
             .and(json_body_calculate())
             .and(with_db(db))
@@ -145,6 +141,37 @@ mod filters {
             .and(json_body_login())
             .and(with_db(db))
             .and_then(handlers::login)
+    }
+
+    pub fn logout() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("logout")
+            .and(warp::path::end())
+            .and(warp::post())
+            .and(warp::cookie("session_hash"))
+            .map(|session_hash: String| {
+                warp::reply::with_header(
+                    warp::reply(),
+                    "set-cookie",
+                    format!("session_hash=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT")).into_response()
+            })
+    }
+
+    pub fn session_info(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("session_info")
+            .and(warp::path::end())
+            .and(warp::get())
+            .and(warp::cookie("session_hash"))
+            .and(with_db(db))
+            .and_then(handlers::session_info)
+    }
+
+    pub fn history(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("history")
+            .and(warp::path::end())
+            .and(warp::get())
+            .and(warp::cookie("session_hash"))
+            .and(with_db(db))
+            .and_then(handlers::history)
     }
 
     pub fn delete_cookies(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -234,7 +261,7 @@ mod filters {
 }
 
 mod handlers {
-    use crate::models::{CalculateJson, Database, Session, TestLoginJson, User};
+    use crate::models::{CalculateJson, Database, Session, TestLoginJson, User, Calculation};
     use http::Error;
     use warp::reply::Reply;
     use warp::http::StatusCode;
@@ -264,7 +291,7 @@ mod handlers {
 
         if let Err(mes) = session_info {
             println!("{mes:?}");
-            return Ok("SESSION GET ERRROR".into_response());
+            return Ok("SESSION GET ERRROR not found session".into_response());
         }
 
         let session_info = session_info.unwrap();
@@ -310,6 +337,68 @@ mod handlers {
         }
     }
 
+    // pub async fn logout(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+    //     let db_response = db.lock().await.execute("update sessions set is_auth=false, user_id=?1, name=?2 where hash=?3;", params![
+    //         user_info.id,
+    //         &user_info.name,
+    //         session_hash,
+    //     ])
+        
+    //     match db_response {
+    //         Ok(_) => Ok(warp::reply().into_response()),
+    //         Err(massage) => {
+    //             println!("{massage:?}");
+    //             Ok(warp::reply::with_status("ERROR_WITH_DB", StatusCode::INTERNAL_SERVER_ERROR).into_response())
+    //         },
+    //     }
+    // }
+
+    pub async fn session_info(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let session_info = get_session_info(db.clone(), session_hash).await;
+        if let Err(mes) = session_info {
+            println!("{mes:?}");
+            return Ok("SESSION GET ERRROR".into_response());
+        }
+        let session_info = session_info.unwrap();
+
+        Ok(warp::reply::json(&session_info).into_response())
+    }
+
+    pub async fn history(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let session_info = get_session_info(db.clone(), session_hash).await;
+        if let Err(mes) = session_info {
+            println!("{mes:?}");
+            return Ok("SESSION GET ERRROR".into_response());
+        }
+        let session_info = session_info.unwrap();
+
+        if session_info.is_auth {
+
+        } else {
+            get_history_by_session(db.clone(), session_info.id);
+        }
+
+        Ok(warp::reply::json(&session_info).into_response())
+    }
+
+    async fn get_history_by_session(db: Database, session_id: i32) -> Result<Vec<Calculation>, rusqlite::Error> {
+        let db = db.lock().await;
+        let mut stmt = db.prepare("select id, num1, num2, operator_id, result, session_id, user_id from calculations where session_id=?1")?;
+        let history = stmt.query_map(params![session_id], |row| {
+            Ok(Calculation {
+                id: row.get(0)?,
+                num1: row.get(1)?,
+                num2: row.get(2)?,
+                operator_id: row.get(3)?,
+                result: row.get(4)?,
+                session_id: row.get(5)?,
+                user_id: row.get(6)?,
+            })
+        })?;
+        let history: Vec<Calculation> = history.map(|e| e.unwrap()).collect();
+        Ok(history)
+    }
+
     async fn get_player_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {
         let auth_hash = login_data.name + ":" + &login_data.password;
         let db_response = db.lock().await.query_row("select id, name, auth_hash from users where auth_hash = ?1;", [&auth_hash],
@@ -323,6 +412,8 @@ mod handlers {
             Err(massage) => Err(massage),
         }
     }
+
+    
 
     async fn get_session_info(db: Database, session_hash: String) -> Result<Session, rusqlite::Error> {
         let db_response = db.lock().await.query_row("select id, hash, is_auth, user_id, name from sessions where hash = ?1;", [&session_hash], |row| Ok(Session{
@@ -340,7 +431,7 @@ mod handlers {
     }
 
     pub async fn user_have_not_cookies_situation(db: Database, err: warp::Rejection) -> Result<impl warp::Reply, std::convert::Infallible> {
-        let hash_seed = rand::random::<u32>();
+        let hash_seed = rand::random::<u32>();  
         let mut hasher = DefaultHasher::new();
         hash_seed.hash(&mut hasher);
         let new_session_hash = STANDARD.encode(hasher.finish().to_string());

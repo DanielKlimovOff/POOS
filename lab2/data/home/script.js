@@ -36,15 +36,15 @@ async function submitbtn() {
             result = 'Invalid operation';
     }
 
-    const response = await fetch("http://localhost:2017/api/calculate/", {
+    const response = await fetch("http://localhost:2017/api/calculate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            value1: val1,
-            value2: val2,
-            operation: operation,
+            num1: val1,
+            num2: val2,
+            operator_id: 1,
             result: null,
         }),
     });
