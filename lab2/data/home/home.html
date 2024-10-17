@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Calculator</title>
-    <link href="/register/home.css" rel="stylesheet">
-    <script src="script.js"></script>
+    <link href="/data/register/home.css" rel="stylesheet">
+    <script src="/data/home/script.js"></script>
 </head>
 <body>
     <div class="container">
@@ -18,15 +18,11 @@
         </select>
 
         <input id="2" type="number">
-    <button onclick="submitbtn()">Submit</button>
+    <!--<button onclick="submitbtn()">Submit</button> -->
+    <button onclick="regbtn()">Sign up</button>
     <script>
-	const firstName = sessionStorage.getItem('firstName');
-        
-
-        if (firstName) {
-            document.getElementById('welcomeMessage').innerText = `${firstName}`;
-        } else {
-            window.location.href = '/register/home.html';
+        function regbtn(){
+            window.location.href="/register";
         }
     </script>
     

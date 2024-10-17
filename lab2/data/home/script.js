@@ -2,7 +2,7 @@ async function submitbtn() {
     let operation = document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
-    let firstname=document.getElementById("firstName").value;
+    let firstname= +document.getElementById("firstName").value;
     let result;
 
     switch (operation) {
