@@ -2,6 +2,25 @@ async function submitbtn() {
     let operation = document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
+    let firstname=document.getElementById("firstName").value;
+    let result;
+
+    switch (operation) {
+        case '+':
+            result = val1 + val2;
+            break;
+        case '-':
+            result = val1 - val2;
+            break;
+        case '*':
+            result = val1 * val2;
+            break;
+        case '/':
+            result = val1 / val2;
+            break;
+        default:
+            result = 'Invalid operation';
+    }
 
     const response = await fetch("http://localhost:3030/", {
         method: "POST",
@@ -18,14 +37,22 @@ async function submitbtn() {
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }
-  
+
     let label = document.getElementById("res");
 
     const json = await response.json();
     console.log(json);
 
-    label.innerHTML = "Result:" + json.value;
+    label.innerHTML = "Result: " + json.value;
 
+    saveOperation(`${firstname} : ${val1} ${operation} ${val2} = ${result}`);
+
+    function saveOperation(operation) {
+        const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
+        history.push(operation);
+        sessionStorage.setItem('operationHistory', JSON.stringify(history));
+    }
+}
 
     // console.log('hello');
     // let operation = document.getElementById("operations");
@@ -66,4 +93,3 @@ async function submitbtn() {
     //     label.innerHTML = "Result:" + sum;
 
     // }
-}

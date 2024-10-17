@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Calculator History</title>
+    <link href="/home/home.css" rel="stylesheet">
+    <script src="/home/script.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Operation History</h1>
+
+        <ul id="history"></ul>
+        <button onclick="clearHistory()">Clear History</button>
+        <button><a href="/home/home.html">Back</a></button>
+    </div>
+    <script>
+        
+        function displayHistory() {
+            const historyList = document.getElementById('history');
+            historyList.innerHTML = ''; 
+            const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
+            
+            history.forEach(operation => {
+                const li = document.createElement('li');
+                li.textContent = operation;
+                historyList.appendChild(li);
+            });
+        }
+
+        function clearHistory() {
+            sessionStorage.removeItem('operationHistory');
+            displayHistory();
+        }
+
+        window.onload = displayHistory;
+    </script>
+    
+</body>
+</html>

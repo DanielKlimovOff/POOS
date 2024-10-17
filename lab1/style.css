@@ -1,16 +1,16 @@
 body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+	font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+       	display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+}
         .container {
             background: white;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 320px;
         }
@@ -27,7 +27,7 @@ body {
         input[type="text"],
         input[type="email"],
         input[type="password"] {
-            width: 95%;
+            width: 90%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -39,7 +39,7 @@ body {
             padding: 10px;
             border-radius: 4px;
             cursor: pointer;
-            width: 95%;
+            width: 90%;
         }
         input[type="submit"]:hover {
             background-color: #218838;
