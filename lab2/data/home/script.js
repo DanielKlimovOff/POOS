@@ -61,8 +61,8 @@ async function saveOperation(operation) {
 
 async function login(){
 
-    let firstName=document.getElementById("firstName");
-    let password=document.getElementById("password");
+    let firstName=document.getElementById("firstName").value;
+    let password=document.getElementById("password").value;
     const response = await fetch("http://localhost:2017/api/login", {
         method: "POST",
         headers: {
