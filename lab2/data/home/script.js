@@ -14,27 +14,10 @@ async function naming(name){
     
 }
 async function submitbtn() {
-    let operation = document.getElementById("operations").value;
+    let operation = +document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
-    let result;
-
-    switch (operation) {
-        case '+':
-            result = val1 + val2;
-            break;
-        case '-':
-            result = val1 - val2;
-            break;
-        case '*':
-            result = val1 * val2;
-            break;
-        case '/':
-            result = val1 / val2;
-            break;
-        default:
-            result = 'Invalid operation';
-    }
+    
 
     const response = await fetch("http://localhost:2017/api/calculate", {
         method: "POST",
@@ -44,7 +27,7 @@ async function submitbtn() {
         body: JSON.stringify({
             num1: val1,
             num2: val2,
-            operator_id: 1,
+            operator_id: 0,
             result: null,
         }),
     });
@@ -58,15 +41,15 @@ async function submitbtn() {
     const json = await response.json();
     console.log(json);
 
-    label.innerHTML = "Result: " + json.value;
+    label.innerHTML = "Result: " + json.result;
 
-    saveOperation(`${val1} ${operation} ${val2} = ${result}`);
+    // saveOperation(`${val1} ${operation} ${val2} = ${result}`);
 
-    function saveOperation(operation) {
-        const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
-        history.push(operation);
-        sessionStorage.setItem('operationHistory', JSON.stringify(history));
-    }
+    // function saveOperation(operation) {
+    //     const history = JSON.parse(sessionStorage.getItem('operationHistory')) || [];
+    //     history.push(operation);
+    //     sessionStorage.setItem('operationHistory', JSON.stringify(history));
+    // }
 }
 
     // console.log('hello');
