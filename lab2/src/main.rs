@@ -75,6 +75,7 @@ mod models {
         pub session_id: i32,
         pub user_id: Option<i32>,
     }
+    
 
     pub fn open_db(name_db: &str) -> Database {
         let db = Connection::open(name_db).unwrap();
