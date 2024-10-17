@@ -78,7 +78,7 @@ async function login(){
         label.innerHTML="Inccorrect password or login!";
         
     }
-    
+    console.log(response);
 }
 
 
