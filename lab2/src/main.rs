@@ -300,6 +300,8 @@ mod handlers {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
     use std::fs::File;
     use std::io::prelude::*;
+    use base64::prelude::*;
+    use md5;
 
     pub async fn calculate(session_hash: String, input_data: CalculateJson, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
         println!("hash123 - {}", session_hash.clone());
@@ -426,12 +428,12 @@ mod handlers {
         let history;
 
         if session_info.is_auth {
-            history = get_history_by_session(db.clone(), session_info.id);
+            history = get_history_by_user_id(db.clone(), session_info.user_id.unwrap()).await;
         } else {
-            history = get_history_by_session(db.clone(), session_info.id);
+            history = get_history_by_session(db.clone(), session_info.id).await;
         }
 
-        match history.await {
+        match history {
             Ok(history) => Ok(warp::reply::json(&history).into_response()),
             Err(err) => Ok(warp::reply::with_header(warp::reply::with_status("HISTORY ERROR", StatusCode::INTERNAL_SERVER_ERROR), "err message", err.to_string()).into_response())
         }
@@ -454,6 +456,25 @@ mod handlers {
         let history: Vec<Calculation> = history.map(|e| e.unwrap()).collect();
         Ok(HistoryJson { history })
     }
+
+    async fn get_history_by_user_id(db: Database, user_id: i32) -> Result<HistoryJson, rusqlite::Error> {
+        let db = db.lock().await;
+        let mut stmt = db.prepare("select id, num1, num2, operator_id, result, session_id, user_id from calculations where user_id=?1")?;
+        let history = stmt.query_map(params![user_id], |row| {
+            Ok(Calculation {
+                id: row.get(0)?,
+                num1: row.get(1)?,
+                num2: row.get(2)?,
+                operator_id: row.get(3)?,
+                result: row.get(4)?,
+                session_id: row.get(5)?,
+                user_id: row.get(6)?,
+            })
+        })?;
+        let history: Vec<Calculation> = history.map(|e| e.unwrap()).collect();
+        Ok(HistoryJson { history })
+    }
+
 
     async fn get_user_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {
         let auth_hash = login_data.name + ":" + &login_data.password;
@@ -496,41 +517,20 @@ mod handlers {
     pub async fn user_have_not_cookies_situation(db: Database, err: warp::Rejection) -> Result<impl warp::Reply, std::convert::Infallible> {
         println!("you are in error situation {err:?}");
 
-        let hash_seed = rand::random::<u32>();  
-        let mut hasher = DefaultHasher::new();
-        hash_seed.hash(&mut hasher);
-        let new_session_hash = STANDARD.encode(hasher.finish().to_string());
-
-        let mut file = File::open("data/names.txt").unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        let names: Vec<&str> = contents.split('\n').collect();
-        let new_session_name = "Strange ".to_string() + names[usize::try_from(hash_seed % 115).unwrap()] + &(hash_seed % 100).to_string();
-        let db_response = db.lock().await.execute("insert into sessions (hash, is_auth, name) values (?1, ?2, ?3);", params![&new_session_hash, false, &new_session_name]);
-        
-        match db_response {
-            Ok(_) => Ok(warp::reply::with_header(
-                warp::redirect(warp::http::Uri::from_static("/")),
-                "set-cookie",
-                format!("session_hash={new_session_hash}; path=/")).into_response()),
-            Err(massage) => {
-                println!("{massage}");
-                Ok(warp::reply::with_status("ERROR_WITH_DB", StatusCode::INTERNAL_SERVER_ERROR).into_response())
-            },
-        }
+        create_new_session("".to_string(), db).await
     }
 
     pub async fn create_new_session(session_hash: String, db: Database) -> Result<impl warp::Reply, std::convert::Infallible> {
         let hash_seed = rand::random::<u32>();  
         let mut hasher = DefaultHasher::new();
         hash_seed.hash(&mut hasher);
-        let new_session_hash = STANDARD.encode(hasher.finish().to_string());
+        let new_session_hash = format!("{:x}", md5::compute(hasher.finish().to_string()));
 
         let mut file = File::open("data/names.txt").unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
         let names: Vec<&str> = contents.split('\n').collect();
-        let new_session_name = "Strange ".to_string() + names[usize::try_from(hash_seed % 115).unwrap()] + &(hash_seed % 100).to_string();
+        let new_session_name = names[usize::try_from(hash_seed % 115).unwrap()].to_owned() + &(hash_seed % 100).to_string();
         let db_response = db.lock().await.execute("insert into sessions (hash, is_auth, name) values (?1, ?2, ?3);", params![&new_session_hash, false, &new_session_name]);
         
         match db_response {
