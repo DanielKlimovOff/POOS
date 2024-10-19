@@ -129,7 +129,7 @@ async function reg(){
     });
 }
 async function logout() {
-    const response = await fetch("http://localhost:2017/api/history", {
+    const response = await fetch("http://localhost:2017/api/logout", {
         method: "GET",
     });
     if (!response.ok) {
