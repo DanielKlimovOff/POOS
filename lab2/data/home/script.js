@@ -6,12 +6,18 @@ async function naming(name){
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }
-    let header=getElementById("name");
     const data=await response.json();
+    let header=document.getElementById("name");
+    let par=document.getElementById("hash");
     console.log(data);
-
-    header.innerHTML="Hello"+ data.value;
-    
+    if (data && data.firstName) {
+        header.innerHTML = "Hello, " + data.name;
+    } else {
+        header.innerHTML = `Hello, ${data.name}`;
+    }
+    if (data && data.hash){
+        par.innerHTML="Your hash:"+ data.hash.substr(0,5);
+    }
 }
 async function submitbtn() {
     let operation = +document.getElementById("operations").value;
@@ -42,7 +48,7 @@ async function submitbtn() {
     console.log(json);
     label.innerHTML = "Result: " + json.result;
 
-    saveOperation(`${val1} ${operation} ${val2} = ${result}`);
+    //saveOperation(`${val1} ${operation} ${val2} = ${result}`);
 }
 async function saveOperation(operation) {
         const response = await fetch("http://localhost:2017/api/history", {
@@ -63,6 +69,7 @@ async function login(){
 
     let firstName=document.getElementById("firstName").value;
     let password=document.getElementById("password").value;
+    let label =document.getElementById("message");
     const response = await fetch("http://localhost:2017/api/login", {
         method: "POST",
         headers: {
@@ -74,13 +81,19 @@ async function login(){
         }),
     });
     if (!response.ok) {
-        let label =document.getElementById("message");
+        
         label.innerHTML="Inccorrect password or login!";
         
     }
+    else{
+        let name=document.getElementById("firstName").value;
+        alert(`Sign in was completed succesfully\nHello, ${name}`);
+        
+        window.location.href="/";
+    }
     console.log(response);
 }
-
+document.addEventListener("DOMContentLoaded", naming);
 
     // console.log('hello');
     // let operation = document.getElementById("operations");

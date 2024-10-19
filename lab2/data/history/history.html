@@ -33,7 +33,6 @@
             historyList=document.getElementById("history");
             historyList.innerHTML='';
             const history = await response.json();
-            //const trimmed =`${response.history[0].num1} ${}`;
             history.history.forEach(response => {
                 const li = document.createElement('li');
                 switch (response.operator_id){
@@ -51,12 +50,12 @@
                         response.operator_id="/";
                         break;
                 }
-                li.textContent = `${response.num1} ${response.operator_id} ${response.num2} ${response.result}`;
+                li.textContent = `${response.num1} ${response.operator_id} ${response.num2} = ${response.result}`;
                 historyList.appendChild(li);
             });
             
             console.log(history);
-            //console.log(trimmed);
+            
         }
             
             
