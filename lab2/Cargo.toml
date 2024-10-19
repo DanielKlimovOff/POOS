@@ -14,3 +14,4 @@ rusqlite = { version = "0.32.0", features = ["bundled"] }
 http = "1.1.0"
 rand = "0.8.5"
 base64 = "0.22.1"
+md5 = "0.7.0"
