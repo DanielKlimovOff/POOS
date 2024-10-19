@@ -1,6 +1,6 @@
 //SAVE USER`S NAME
 async function naming(name){
-    const response = await fetch("http://localhost:2017/api/session_info", {
+    const response = await fetch("http://217.71.129.139:4798/api/session_info", {
         method: "GET",
     });
     
@@ -27,7 +27,7 @@ async function submitbtn() {
     let val2 = +document.getElementById("2").value;
     let result;
     if (val1!="" && val2!=""){
-        const response = await fetch("http://localhost:2017/api/calculate", {
+        const response = await fetch("http://217.71.129.139:4798/api/calculate", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -57,7 +57,7 @@ async function submitbtn() {
 }
 //HISTORY
 async function saveOperation(operation) {
-        const response = await fetch("http://localhost:2017/api/history", {
+        const response = await fetch("http://217.71.129.139:4798/api/history", {
             method: "GET",
         });
         
@@ -76,7 +76,7 @@ async function login(){
     let firstName=document.getElementById("firstName").value;
     let password=document.getElementById("password").value;
     let label =document.getElementById("message");
-    const response = await fetch("http://localhost:2017/api/login", {
+    const response = await fetch("http://217.71.129.139:4798/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -110,7 +110,7 @@ async function reg(){
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch("http://localhost:2017/api/register", {
+            const response = await fetch("http://217.71.129.139:4798/api/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -132,7 +132,7 @@ async function reg(){
     });
 }
 async function logout() {
-    const response = await fetch("http://localhost:2017/api/logout", {
+    const response = await fetch("http://217.71.129.139:4798/api/logout", {
         method: "GET",
     });
     if (!response.ok) {
