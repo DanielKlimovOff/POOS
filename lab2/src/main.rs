@@ -130,7 +130,7 @@ mod filters {
             calculate(db.clone())
             .or(delete_cookies(db.clone()))
             .or(login(db.clone()))
-            .or(logout())
+            .or(logout(db.clone()))
             .or(register(db.clone()))
             .or(history(db.clone()))
             .or(session_info(db.clone()))
@@ -167,17 +167,21 @@ mod filters {
             .and_then(handlers::register)
     }
 
-    pub fn logout() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    pub fn logout(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path("logout")
             .and(warp::path::end())
             .and(warp::get())
             .and(warp::cookie("session_hash"))
-            .map(|session_hash: String| {
-                warp::reply::with_header(
-                    warp::reply(),
-                    "set-cookie",
-                    format!("session_hash=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT")).into_response()
-            })
+            .and(with_db(db))
+            .and_then(handlers::create_new_session)
+            
+            // .map(|session_hash: String| {
+            //     warp::reply::with_header(
+            //         // warp::redirect(warp::http::Uri::from_static("/")),
+            //         "LOGOUTED",
+            //         "set-cookie",
+            //         format!("session_hash=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT")).into_response()
+            // })
     }
 
     pub fn session_info(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -272,6 +276,7 @@ mod filters {
         warp::any()
             .and(warp::cookie::optional("session_hash"))
             .and_then(|session_hash: Option<String>| async move {
+                println!("cookies take {session_hash:?}");
                 if session_hash == None{
                     return Err(warp::reject::custom(models::UnIdentified));
                 }
@@ -293,6 +298,8 @@ mod handlers {
     use rand;
     use std::hash::{DefaultHasher, Hash, Hasher};
     use base64::{engine::general_purpose::STANDARD, Engine as _};
+    use std::fs::File;
+    use std::io::prelude::*;
 
     pub async fn calculate(session_hash: String, input_data: CalculateJson, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
         println!("hash123 - {}", session_hash.clone());
@@ -493,14 +500,44 @@ mod handlers {
         let mut hasher = DefaultHasher::new();
         hash_seed.hash(&mut hasher);
         let new_session_hash = STANDARD.encode(hasher.finish().to_string());
-        let new_session_name = "Udefiend ".to_string() + "Dazzle" + &hash_seed.to_string();
+
+        let mut file = File::open("data/names.txt").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let names: Vec<&str> = contents.split('\n').collect();
+        let new_session_name = "Strange ".to_string() + names[usize::try_from(hash_seed % 115).unwrap()] + &(hash_seed % 100).to_string();
         let db_response = db.lock().await.execute("insert into sessions (hash, is_auth, name) values (?1, ?2, ?3);", params![&new_session_hash, false, &new_session_name]);
         
         match db_response {
             Ok(_) => Ok(warp::reply::with_header(
                 warp::redirect(warp::http::Uri::from_static("/")),
                 "set-cookie",
-                format!("session_hash={new_session_hash}")).into_response()),
+                format!("session_hash={new_session_hash}; path=/")).into_response()),
+            Err(massage) => {
+                println!("{massage}");
+                Ok(warp::reply::with_status("ERROR_WITH_DB", StatusCode::INTERNAL_SERVER_ERROR).into_response())
+            },
+        }
+    }
+
+    pub async fn create_new_session(session_hash: String, db: Database) -> Result<impl warp::Reply, std::convert::Infallible> {
+        let hash_seed = rand::random::<u32>();  
+        let mut hasher = DefaultHasher::new();
+        hash_seed.hash(&mut hasher);
+        let new_session_hash = STANDARD.encode(hasher.finish().to_string());
+
+        let mut file = File::open("data/names.txt").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let names: Vec<&str> = contents.split('\n').collect();
+        let new_session_name = "Strange ".to_string() + names[usize::try_from(hash_seed % 115).unwrap()] + &(hash_seed % 100).to_string();
+        let db_response = db.lock().await.execute("insert into sessions (hash, is_auth, name) values (?1, ?2, ?3);", params![&new_session_hash, false, &new_session_name]);
+        
+        match db_response {
+            Ok(_) => Ok(warp::reply::with_header(
+                warp::reply(),
+                "set-cookie",
+                format!("session_hash={new_session_hash}; path=/")).into_response()),
             Err(massage) => {
                 println!("{massage}");
                 Ok(warp::reply::with_status("ERROR_WITH_DB", StatusCode::INTERNAL_SERVER_ERROR).into_response())
