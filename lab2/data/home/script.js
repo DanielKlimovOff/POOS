@@ -1,3 +1,4 @@
+//SAVE USER`S NAME
 async function naming(name){
     const response = await fetch("http://localhost:2017/api/session_info", {
         method: "GET",
@@ -19,6 +20,7 @@ async function naming(name){
         par.innerHTML="Your hash:"+ data.hash.substr(0,5);
     }
 }
+//SUBMIT OPERATION
 async function submitbtn() {
     let operation = +document.getElementById("operations").value;
     let val1 = +document.getElementById("1").value;
@@ -50,6 +52,7 @@ async function submitbtn() {
 
     //saveOperation(`${val1} ${operation} ${val2} = ${result}`);
 }
+//HISTORY
 async function saveOperation(operation) {
         const response = await fetch("http://localhost:2017/api/history", {
             method: "GET",
@@ -64,7 +67,7 @@ async function saveOperation(operation) {
         console.log(history);
 }
 
-
+//LOGIN
 async function login(){
 
     let firstName=document.getElementById("firstName").value;
@@ -95,6 +98,47 @@ async function login(){
 }
 document.addEventListener("DOMContentLoaded", naming);
 
+//REGISTRATION
+async function reg(){
+    document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const firstName = document.getElementById('firstName').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch("http://localhost:2017/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: firstName,
+                    password: password
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error during registration:', error);
+            alert('Failed to register. Please try again.');
+        }
+    });
+}
+async function logout() {
+    const response = await fetch("http://localhost:2017/api/history", {
+        method: "GET",
+    });
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+    else{
+        window.location.href="/";
+    }
+}
     // console.log('hello');
     // let operation = document.getElementById("operations");
     // if (operations.value=="+") {

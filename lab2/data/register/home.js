@@ -23,12 +23,10 @@ document.getElementById('registrationForm').addEventListener('submit', async fun
         const data = await response.json();
         console.log('Registration successful:', data);
 
-        // Если регистрация прошла успешно, сохраняем имя пользователя и пароль
-        sessionStorage.setItem('firstName', firstName);
-        sessionStorage.setItem('password', password);
+        
 
         // Перенаправляем пользователя на главную страницу
-        window.location.href = '/home/home.html';
+        window.location.href = '/';
     } catch (error) {
         console.error('Error during registration:', error);
         alert('Failed to register. Please try again.');
