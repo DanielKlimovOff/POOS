@@ -26,30 +26,33 @@ async function submitbtn() {
     let val1 = +document.getElementById("1").value;
     let val2 = +document.getElementById("2").value;
     let result;
+    if (val1!="" && val2!=""){
+        const response = await fetch("http://localhost:2017/api/calculate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                num1: val1,
+                num2: val2,
+                operator_id: operation,
+                result: null,
+            }),
+        });
 
-    const response = await fetch("http://localhost:2017/api/calculate", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            num1: val1,
-            num2: val2,
-            operator_id: operation,
-            result: null,
-        }),
-    });
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
 
-    if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        let label = document.getElementById("res");
+
+        const json = await response.json();
+        console.log(json);
+        label.innerHTML = "Result: " + json.result;
     }
-
-    let label = document.getElementById("res");
-
-    const json = await response.json();
-    console.log(json);
-    label.innerHTML = "Result: " + json.result;
-
+    else{
+        alert("Calculator poles are empty!");
+    }
     //saveOperation(`${val1} ${operation} ${val2} = ${result}`);
 }
 //HISTORY
