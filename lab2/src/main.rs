@@ -99,6 +99,7 @@ mod filters {
                 api(db.clone())
                 .or(data())
                 .or(pages())
+                .or(wrong_door())
             )
             .recover(  move |err|  {
                 handlers::user_have_not_cookies_situation(db.clone(), err)
@@ -118,12 +119,19 @@ mod filters {
         //     })
     }
 
+    pub fn wrong_door() -> impl Filter<Extract = (impl warp::Reply,), Error = Infallible> + Clone {
+        warp::any().map(|| {
+            warp::redirect(warp::http::Uri::from_static("/"))
+        })
+    }
+
     pub fn api(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path("api").and(
             calculate(db.clone())
             .or(delete_cookies(db.clone()))
             .or(login(db.clone()))
             .or(logout())
+            .or(register(db.clone()))
             .or(history(db.clone()))
             .or(session_info(db.clone()))
         )
@@ -149,10 +157,20 @@ mod filters {
             .and_then(handlers::login)
     }
 
+    pub fn register(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("register")
+            .and(warp::path::end())
+            .and(warp::post())
+            .and(warp::cookie("session_hash"))
+            .and(json_body_login())
+            .and(with_db(db))
+            .and_then(handlers::register)
+    }
+
     pub fn logout() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path("logout")
             .and(warp::path::end())
-            .and(warp::post())
+            .and(warp::get())
             .and(warp::cookie("session_hash"))
             .map(|session_hash: String| {
                 warp::reply::with_header(
@@ -321,7 +339,7 @@ mod handlers {
     }
 
     pub async fn login(session_hash: String, login_data: TestLoginJson, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
-        let user_info = get_player_info_by_login(db.clone(), login_data).await;
+        let user_info = get_user_info_by_login(db.clone(), login_data).await;
 
         println!("{user_info:?}");
 
@@ -342,6 +360,24 @@ mod handlers {
             }
             },
             Err(mess) => Ok(warp::reply::with_status("USER NOT EXIST", StatusCode::UNAUTHORIZED).into_response()),
+        }
+    }
+
+    pub async fn register(session_hash: String, register_data: TestLoginJson, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let register_result = register_new_user(db.clone(), &register_data).await;
+
+        println!("{register_result:?}");
+
+        match register_result {
+            Ok(_) => {
+                let result = login(session_hash, register_data, db).await;
+                match result {
+                    Ok(ok) => Ok(ok.into_response()),
+                    Err(rej) => Err(rej),
+                }
+            },
+            // Err(mess) => Ok(warp::reply().into_response()),
+            Err(mess) => Ok(warp::reply::with_status("ERROR WITH REGISTER", StatusCode::UNAUTHORIZED).into_response()),
         }
     }
 
@@ -412,7 +448,7 @@ mod handlers {
         Ok(HistoryJson { history })
     }
 
-    async fn get_player_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {
+    async fn get_user_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {
         let auth_hash = login_data.name + ":" + &login_data.password;
         let db_response = db.lock().await.query_row("select id, name, auth_hash from users where auth_hash = ?1;", [&auth_hash],
          |row| Ok(User{
@@ -426,7 +462,14 @@ mod handlers {
         }
     }
 
-    
+    async fn register_new_user(db: Database, register_data: &TestLoginJson) -> Result<(), rusqlite::Error> {
+        let auth_hash = register_data.clone().name + ":" + &register_data.password;
+        let db_response = db.lock().await.execute("insert into users(name, auth_hash) values(?1, ?2);", [&register_data.name, &auth_hash]);
+        match db_response {
+            Ok(_) => Ok(()),
+            Err(massage) => Err(massage),
+        }
+    }
 
     async fn get_session_info(db: Database, session_hash: String) -> Result<Session, rusqlite::Error> {
         let db_response = db.lock().await.query_row("select id, hash, is_auth, user_id, name from sessions where hash = ?1;", [&session_hash], |row| Ok(Session{
@@ -444,6 +487,8 @@ mod handlers {
     }
 
     pub async fn user_have_not_cookies_situation(db: Database, err: warp::Rejection) -> Result<impl warp::Reply, std::convert::Infallible> {
+        println!("you are in error situation {err:?}");
+
         let hash_seed = rand::random::<u32>();  
         let mut hasher = DefaultHasher::new();
         hash_seed.hash(&mut hasher);
@@ -453,7 +498,7 @@ mod handlers {
         
         match db_response {
             Ok(_) => Ok(warp::reply::with_header(
-                warp::reply(),
+                warp::redirect(warp::http::Uri::from_static("/")),
                 "set-cookie",
                 format!("session_hash={new_session_hash}")).into_response()),
             Err(massage) => {
