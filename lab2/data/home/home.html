@@ -11,8 +11,8 @@
         <div class="container">
             <h1>Calculator</h1>
             <h2 id="name">Hello</h2>
-            <p id="hash">Your hash:</p>
-                <input id="1" type="number">
+            <h3 id="hash">Your hash:</h3>
+                <input id="1" type="number"/>
                 <select id="operations">
                     <option value=1>+</option>
                     <option value=2>-</option>
@@ -20,14 +20,14 @@
                     <option value=4>/</option>
                 </select>
 
-                <input id="2" type="number">
+                <input id="2" type="number"/>
             <div class="subcontainer">
-                <button onclick="submitbtn()">Submit</button>
+                <button class="color" onclick="submitbtn()">Submit</button>
 
             </div>
 
             <label id="res">Result:</label>
-            <button class="hisbtn" onclick="historypage()">History</button>
+            <button class="color" onclick="historypage()">History</button>
             <script>
                     function historypage(){
                         window.location.href='/history';
@@ -36,21 +36,26 @@
         </div>
         <div class="container2">
             <h1>Registration</h1>
-            <button onclick="regbtn()">Sign up</button>
+            <div>
+            <button class="color" onclick="regbtn()">Sign up</button>
             <script>
                 function regbtn(){
                     window.location.href="/register";
                 }
             </script>
+            </div>
             
-            
-            <button class="loginbtn" onclick="login2()">Sign In</button>
+            <div>
+            <button class="color" onclick="login2()">Sign In</button>
             <script>
                 function login2(){
                         window.location.href='/login';
                     }
                 </script>
-            <button class="logoutbtn" onclick="logout()">Sign out</button>
+            </div>
+            <div>
+                <button class="color" onclick="logout()">Sign out</button>
+            </div>
         </div>
     </div>
 </body>
