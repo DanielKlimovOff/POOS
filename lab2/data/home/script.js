@@ -142,42 +142,28 @@ async function logout() {
         window.location.href="/";
     }
 }
-    // console.log('hello');
-    // let operation = document.getElementById("operations");
-    // if (operations.value=="+") {
-    //     let val1 = document.getElementById("1").value;
-    //     let val2 = document.getElementById("2").value;
-    //     let label = document.getElementById("res");
 
-    //     let sum = +val1 + (+val2);
-    //     label.innerHTML = "Result:" + sum;
-        
-    // }
-    // if (operations.value == "-") {
-    //     let val1 = document.getElementById("1").value;
-    //     let val2 = document.getElementById("2").value;
-    //     let label = document.getElementById("res");
-
-    //     let sum = +val1 - (+val2);
-    //     label.innerHTML = "Result:" + sum;
-
-    // }
-    // if (operations.value == "*") {
-    //     let val1 = document.getElementById("1").value;
-    //     let val2 = document.getElementById("2").value;
-    //     let label = document.getElementById("res");
-
-    //     let sum =(+val1 * (+val2)) - (+val1 * (+val2)) % 0.01;
-    //     label.innerHTML = "Result:" + sum;
-
-    // }
-    // if (operations.value == "/") {
-    //     let val1 = document.getElementById("1").value;
-    //     let val2 = document.getElementById("2").value;
-    //     let label = document.getElementById("res");
-
-    //     let sum = (+val1 / (+val2)) - (+val1 / (+val2))%0.01;
-
-    //     label.innerHTML = "Result:" + sum;
-
-    // }
+//THEME
+document.getElementById('theme').addEventListener('click', function() {
+    const currentTheme = document.body.className;
+    if (currentTheme === 'light-theme') {
+        document.body.className = 'dark-theme';
+    } else {
+        document.body.className = 'light-theme';
+    }
+});
+//PROFILE IMAGE
+/*async function image(){
+    const response = await fetch("http://217.71.129.139:4798/api/image", {
+        method: "GET",
+    });
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+    const data = await response.json();
+    let image=document.getElementById("im");
+    if (data && data.image){
+        image.innerHTML=data.image;
+    }
+}*/
+    
