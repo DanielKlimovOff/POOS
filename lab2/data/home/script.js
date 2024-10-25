@@ -1,6 +1,26 @@
 //SAVE USER`S NAME
+// localhost:2017
+// 217.71.129.139:4798
+
+    console.log('before');
+    const container1 = document.getElementById('container');
+    const container2 = document.getElementById('container2');
+
+    if (container1) {
+        // Если элементы существуют, выводим их классы
+        console.log(container1.classList);
+    }
+    else {
+        console.log('container1 не найден');
+    }
+    if (container2){
+        console.log(container2.classList);
+    } else {
+        console.log('container2 не найден');
+    }
+
 async function naming(name){
-    const response = await fetch("http://217.71.129.139:4798/api/session_info", {
+    const response = await fetch("http://localhost:2017/api/session_info", {
         method: "GET",
     });
     
@@ -27,7 +47,7 @@ async function submitbtn() {
     let val2 = +document.getElementById("2").value;
     let result;
     if (val1!="" && val2!=""){
-        const response = await fetch("http://217.71.129.139:4798/api/calculate", {
+        const response = await fetch("http://localhost:2017/api/calculate", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -57,7 +77,7 @@ async function submitbtn() {
 }
 //HISTORY
 async function saveOperation(operation) {
-        const response = await fetch("http://217.71.129.139:4798/api/history", {
+        const response = await fetch("http://localhost:2017/api/history", {
             method: "GET",
         });
         
@@ -76,7 +96,7 @@ async function login(){
     let firstName=document.getElementById("firstName").value;
     let password=document.getElementById("password").value;
     let label =document.getElementById("message");
-    const response = await fetch("http://217.71.129.139:4798/api/login", {
+    const response = await fetch("http://localhost:2017/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -110,7 +130,7 @@ async function reg(){
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch("http://217.71.129.139:4798/api/register", {
+            const response = await fetch("http://localhost:2017/api/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -132,7 +152,7 @@ async function reg(){
     });
 }
 async function logout() {
-    const response = await fetch("http://217.71.129.139:4798/api/logout", {
+    const response = await fetch("http://localhost:2017/api/logout", {
         method: "GET",
     });
     if (!response.ok) {
@@ -143,15 +163,142 @@ async function logout() {
     }
 }
 
+//HISTORY
+
+async function displayHistory() {  
+    const response = await fetch("http://localhost:2017/api/history", {
+        method: "GET",
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+    historyList=document.getElementById("history");
+    historyList.innerHTML='';
+    const history = await response.json();
+    history.history.forEach(response => {
+        const li = document.createElement('li');
+        switch (response.operator_id){
+            case 1:
+                response.operator_id="+";
+                break;
+            case 2:
+                response.operator_id="-";
+
+                break;
+            case 3:
+                response.operator_id="*";
+                break;
+            case 4:
+                response.operator_id="/";
+                break;
+        }
+        li.textContent = `${response.num1} ${response.operator_id} ${response.num2} = ${response.result}`;
+        historyList.appendChild(li);
+    });
+    
+    console.log(history);
+    
+}
+    /*history.forEach(operation => {
+        const li = document.createElement('li');
+        li.textContent = operation;
+        historyList.appendChild(li);
+    });*/
+
+/*function clearHistory() {
+    sessionStorage.removeItem('operationHistory');
+    displayHistory();
+}*/
+
+
+
 //THEME
-document.getElementById('theme').addEventListener('click', function() {
-    const currentTheme = document.body.className;
-    if (currentTheme === 'light-theme') {
-        document.body.className = 'dark-theme';
-    } else {
+
+window.onload = function() {
+    displayHistory();
+    const savedTheme = sessionStorage.getItem('theme'); // Получаем сохранённую тему из sessionStorage
+    const container1 = document.getElementById('container');
+    const container2 = document.getElementById('container2');
+    const input = document.getElementById('1');
+    const input2 = document.getElementById('2');
+    const select= document.getElementById('operations');
+    const button = document.getElementById('theme');
+    if (savedTheme=='light-theme') {
+        document.body.className = savedTheme;
+        container1.className='container_light_theme';
+        input.className='light-theme';
+        input2.className='light-theme';
+        select.className='light-theme';
+        button.className='light-theme';
+        if (container2){
+            container2.className='container2_light_theme';
+        }
+    }  
+    else if (savedTheme=='dark-theme'){
+        document.body.className = savedTheme;
+        container1.className='container_dark_theme';
+        input.className='dark-theme';
+        input2.className='dark-theme';
+        select.className='dark-theme';
+        button.className='dark-theme';
+        if (container2){
+            container2.className='container2_dark_theme';
+        }
+    
+    } 
+    else {
         document.body.className = 'light-theme';
     }
-});
+    if (container1) {
+        container1.style.display = 'block';
+    }
+    if (container2){
+        container2.style.display = 'block';
+    }
+    console.log(savedTheme);
+}
+
+async function theme_changer(){
+    document.getElementById('theme').value;
+    const CurT = document.body.className;
+    const container1 = document.getElementById('container');
+    const container2 = document.getElementById('container2');
+    const input = document.getElementById('1');
+    const input2 = document.getElementById('2');
+    const select = document.getElementById('operations');
+    const button = document.getElementById('theme');
+    
+    if (CurT === 'light-theme') {
+        document.body.className = 'dark-theme';
+        sessionStorage.setItem('theme','dark-theme');
+        container1.className='container_dark_theme';
+        input.className='dark-theme';
+        input2.className='dark-theme';
+        select.className='dark-theme';
+        button.className='dark-theme';
+        
+        if (container2){
+            container2.className='container2_dark_theme';
+        }
+        
+    } else {
+        document.body.className = 'light-theme';
+        sessionStorage.setItem('theme','light-theme');
+        console.log(container1.classList);
+        console.log(container2.classList);
+        container1.className='container_light_theme';
+        input.className='light-theme';
+        input2.className='light-theme';
+        select.className='light-theme';
+        button.className='light-theme';
+
+        if (container2){
+            container2.className='container2_light_theme';
+        }
+    }
+}
+
 //PROFILE IMAGE
 /*async function image(){
     const response = await fetch("http://217.71.129.139:4798/api/image", {

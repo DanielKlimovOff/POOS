@@ -6,27 +6,29 @@
     <link href="/data/register/home.css" rel="stylesheet">
     <script src="/data/home/script.js"></script>
 </head>
-<body>
-    <button id="theme">Theme</button>
+<body class="light-theme">
+    <div>
+        <button class="light-theme" id="theme" onclick="theme_changer()">Theme</button>
+    </div>
     <div class="photo-wrapper">
         <div class="circle-container">
             <!--<img id="im" src="image.png"/>-->
         </div>
     </div>
     <div class="wrapper">
-        <div class="container">
+        <div class="container_light_theme" id="container">
             <h1>Calculator</h1>
             <h2 id="name">Hello</h2>
             <h3 id="hash">Your hash:</h3>
-                <input id="1" type="number"/>
-                <select id="operations">
+                <input id="1" class="light-theme" type="number"/>
+                <select class="light-theme" id="operations">
                     <option value=1>+</option>
                     <option value=2>-</option>
                     <option value=3>*</option>
                     <option value=4>/</option>
                 </select>
 
-                <input id="2" type="number"/>
+                <input id="2" class="light-theme" type="number"/>
             <div class="subcontainer">
                 <button class="color" onclick="submitbtn()">Submit</button>
 
@@ -40,7 +42,7 @@
                     }
                 </script>
         </div>
-        <div class="container2">
+        <div class="container2_light_theme" id="container2">
             <h1>Registration</h1>
             <div>
             <button class="color" onclick="regbtn()">Sign up</button>
@@ -57,11 +59,13 @@
                 function login2(){
                         window.location.href='/login';
                     }
+                    
                 </script>
             </div>
             <div>
                 <button class="color" onclick="logout()">Sign out</button>
             </div>
+            
         </div>
     </div>
 </body>

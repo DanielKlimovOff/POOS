@@ -3,12 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <title>Calculator History</title>
-    <link href="/data/home/home.css" rel="stylesheet">
+    <link href="/data/register/home.css" rel="stylesheet">
     <script src="/data/home/script.js"></script>
-    
 </head>
 <body>
-    <div class="container">
+    <div class="container_light_theme" id="container">
         <h1>Operation History</h1>
 
         <ul id="history"></ul>
@@ -20,58 +19,6 @@
             }
         </script>
     </div>
-    <script>
-        
-        async function displayHistory() {  
-            const response = await fetch("http://217.71.129.139:4798/api/history", {
-                method: "GET",
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
-            }
-            historyList=document.getElementById("history");
-            historyList.innerHTML='';
-            const history = await response.json();
-            history.history.forEach(response => {
-                const li = document.createElement('li');
-                switch (response.operator_id){
-                    case 1:
-                        response.operator_id="+";
-                        break;
-                    case 2:
-                        response.operator_id="-";
-
-                        break;
-                    case 3:
-                        response.operator_id="*";
-                        break;
-                    case 4:
-                        response.operator_id="/";
-                        break;
-                }
-                li.textContent = `${response.num1} ${response.operator_id} ${response.num2} = ${response.result}`;
-                historyList.appendChild(li);
-            });
-            
-            console.log(history);
-            
-        }
-            
-            
-            /*history.forEach(operation => {
-                const li = document.createElement('li');
-                li.textContent = operation;
-                historyList.appendChild(li);
-            });*/
-
-        /*function clearHistory() {
-            sessionStorage.removeItem('operationHistory');
-            displayHistory();
-        }*/
-
-        window.onload = displayHistory;
-    </script>
     
 </body>
 </html>
