@@ -64,17 +64,13 @@ label {
             display: block;
             margin-bottom: 5px;
 }
-input.light-theme[type="text"],
-input.light-theme[type="email"],
-input.light-theme[type="password"] {
+input.light-theme[type="text"], input.light-theme[type="password"] {
     width: 90%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
-input.dark-theme[type="text"],
-input.dark-theme[type="email"],
-input.dark-theme[type="password"] {
+input.dark-theme[type="text"], input.dark-theme[type="password"]{
     width: 90%;
     padding: 10px;
     border: 1px solid #474747;

@@ -222,8 +222,11 @@ window.onload = function() {
     const container2 = document.getElementById('container2');
     const input = document.getElementById('1');
     const input2 = document.getElementById('2');
-    const select= document.getElementById('operations');
+    const select = document.getElementById('operations');
     const button = document.getElementById('theme');
+    const inplog = document.getElementById('firstName');
+    const pass = document.getElementById('password');
+
     if (savedTheme=='light-theme') {
         document.body.className = savedTheme;
         container1.className='container_light_theme';
@@ -231,20 +234,22 @@ window.onload = function() {
         input2.className='light-theme';
         select.className='light-theme';
         button.className='light-theme';
-        if (container2){
+        inplog.className='light-theme';
+        pass.className='light-theme';    
             container2.className='container2_light_theme';
-        }
     }  
     else if (savedTheme=='dark-theme'){
         document.body.className = savedTheme;
         container1.className='container_dark_theme';
+        inplog.className='dark-theme';
+        pass.className='dark-theme'; 
+        
         input.className='dark-theme';
         input2.className='dark-theme';
         select.className='dark-theme';
         button.className='dark-theme';
-        if (container2){
+        
             container2.className='container2_dark_theme';
-        }
     
     } 
     else {
@@ -278,9 +283,7 @@ async function theme_changer(){
         select.className='dark-theme';
         button.className='dark-theme';
         
-        if (container2){
             container2.className='container2_dark_theme';
-        }
         
     } else {
         document.body.className = 'light-theme';
@@ -292,13 +295,10 @@ async function theme_changer(){
         input2.className='light-theme';
         select.className='light-theme';
         button.className='light-theme';
-
-        if (container2){
             container2.className='container2_light_theme';
-        }
     }
 }
-
+document.addEventListener("DOMContentLoaded", theme_changer);
 //PROFILE IMAGE
 /*async function image(){
     const response = await fetch("http://217.71.129.139:4798/api/image", {
