@@ -142,7 +142,18 @@ mod filters {
             .or(history(db.clone()))
             .or(session_info(db.clone()))
             .or(get_users(db.clone()))
+            .or(delete_user(db.clone()))
         )
+    }
+
+    pub fn delete_user(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("delete_user")
+            .and(warp::path::end())
+            .and(warp::post())
+            .and(warp::cookie("session_hash"))
+            .and(warp::header("user_id"))
+            .and(with_db(db))
+            .and_then(handlers::delete_user)
     }
 
     pub fn get_users(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -246,7 +257,8 @@ mod filters {
     }
 
     pub fn users_page() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
-        warp::path::end()
+        warp::path("users")
+            .and(warp::path::end())
             .and(warp::get())
             .and(warp::fs::file("./data/users/users.html"))
     }
@@ -436,6 +448,38 @@ mod handlers {
         Ok(warp::reply::json(&users).into_response())
     }
 
+    pub async fn delete_user(session_hash: String, user_id: i32, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let session_info = get_session_info(db.clone(), session_hash).await;
+        if let Err(mes) = session_info {
+            println!("{mes:?}");
+            return Ok("delete user ERRROR1".into_response());
+        }
+        let session_info = session_info.unwrap();
+
+        if session_info.is_auth == false {
+            return Ok(warp::reply::with_status(warp::reply(), StatusCode::from_u16(228).unwrap()).into_response());
+        }
+
+        let user_info = get_user_info_by_id(session_info.user_id.unwrap(), db.clone()).await;
+        if let Err(mes) = user_info {
+            println!("{mes:?}");
+            return Ok("USERS GET ERRROR2".into_response());
+        }
+        let user_info = user_info.unwrap();
+
+        if user_info.role != "moderling" {
+            return Ok(warp::reply::with_status(warp::reply(), StatusCode::from_u16(229).unwrap()).into_response());
+        }
+
+        let db_response = db.lock().await.execute("delete from users where id = ?1;",
+            [5]);
+        match db_response {
+            Ok(_) => Ok(warp::reply().into_response()),
+            Err(massage) => Ok(warp::reply::with_status(massage.to_string(),
+             StatusCode::INTERNAL_SERVER_ERROR).into_response()),
+        }
+    }
+
     // pub async fn logout(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
     //     let db_response = db.lock().await.execute("update sessions set is_auth=false, user_id=?1, name=?2 where hash=?3;", params![
     //         user_info.id,
@@ -534,6 +578,21 @@ mod handlers {
         })?;
         let data: Vec<User> = data.map(|e| e.unwrap()).collect();
         Ok(UsersJson { users: data })
+    }
+
+    async fn get_user_info_by_id(user_id: i32, db: Database) -> Result<User, rusqlite::Error> {
+        let db_response = db.lock().await.query_row("select id, name, auth_hash, role from users where id = ?1", params![user_id], |row| {
+            Ok(User{
+                id: row.get(0)?,
+                name: row.get(1)?,
+                auth_hash: row.get(2)?,
+                role: row.get(3)?,
+            })
+        });
+        match db_response {
+            Ok(user_info) => Ok(user_info),
+            Err(massage) => Err(massage),
+        }
     }
 
     async fn get_user_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {
