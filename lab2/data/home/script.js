@@ -3,9 +3,9 @@
 // 217.71.129.139:4798
 
  
-
+let ser_fetch = "http://217.71.129.139:4798";
 async function naming(name){
-    let ser_fetch = "http://217.71.129.139:4798";
+    
     const response = await fetch(ser_fetch+"/session_info", {
         method: "GET",
     });
