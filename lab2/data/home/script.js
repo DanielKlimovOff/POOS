@@ -5,6 +5,7 @@
  
 
 async function naming(name){
+    
     const response = await fetch("http://localhost:2017/api/session_info", {
         method: "GET",
     });
@@ -166,7 +167,6 @@ async function displayHistory() {
                 break;
             case 2:
                 response.operator_id="-";
-
                 break;
             case 3:
                 response.operator_id="*";
@@ -274,6 +274,35 @@ async function theme_changer(){
         select.className = 'light-theme';
         button.className = 'light-theme';
         container2.className = 'container2_light_theme';
+    }
+}
+
+//USERS
+
+async function users_table() {
+    try {
+        const response = await fetch("http://localhost:2017/api/get_users", {
+            method: "GET",
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const userList = document.getElementById("users");
+        userList.innerHTML = ''; 
+
+        const data = await response.json();
+        
+        data.users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${user.id}, Name: ${user.name}, Role: ${user.role}`;
+            userList.appendChild(li);
+        });
+        
+        console.log(data);
+    } catch (error) {
+        console.error("Error fetching users:", error);
     }
 }
 
