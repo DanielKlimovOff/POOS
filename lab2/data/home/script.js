@@ -82,7 +82,7 @@ async function login(){
     let firstName=document.getElementById("firstName").value;
     let password=document.getElementById("password").value;
     let label =document.getElementById("message");
-    const response = await fetch(ser_fetch++"/api/login", {
+    const response = await fetch(ser_fetch+"/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
