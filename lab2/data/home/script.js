@@ -3,7 +3,7 @@
 // 217.71.129.139:4798
 
  
-let ser_fetch = "http://217.71.129.139:4798";
+let ser_fetch = "http://localhost:2017";
 async function naming(name){
     
     const response = await fetch(ser_fetch+"/session_info", {
@@ -198,13 +198,14 @@ async function displayHistory() {
 //THEME
 
 window.onload = function() {
-    if (window.location.href='/history'){
+    console.log(window.location);
+    if (window.location.href=='/history'){
         displayHistory();
     }
-    if (window.location.href='/users'){
+    if (window.location.href=='/users'){
         users_table();
     }
-    
+    console.log(window.location);
     const savedTheme = localStorage.getItem('theme'); // Получаем сохраненную тему из localStorage
     const container1 = document.getElementById('container');
     const container2 = document.getElementById('container2');
@@ -334,7 +335,7 @@ async function users_table() {
     }
     
 }
-document.addEventListener("DOMContentLoaded", users_table);
+
 //document.addEventListener("DOMContentLoaded", theme_changer);
 //PROFILE IMAGE
 /*async function image(){
