@@ -5,7 +5,7 @@
  
 
 async function naming(name){
-    const response = await fetch("http://217.71.129.139:4798/api/session_info", {
+    const response = await fetch("http://localhost:2017/api/session_info", {
         method: "GET",
     });
     
@@ -32,7 +32,7 @@ async function submitbtn() {
     let val2 = +document.getElementById("2").value;
     let result;
     if (val1!="" && val2!=""){
-        const response = await fetch("http://217.71.129.139:4798/api/calculate", {
+        const response = await fetch("http://localhost:2017/api/calculate", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -62,7 +62,7 @@ async function submitbtn() {
 }
 //HISTORY
 async function saveOperation(operation) {
-        const response = await fetch("http://217.71.129.139:4798/api/history", {
+        const response = await fetch("http://localhost:2017/api/history", {
             method: "GET",
         });
         
@@ -81,7 +81,7 @@ async function login(){
     let firstName=document.getElementById("firstName").value;
     let password=document.getElementById("password").value;
     let label =document.getElementById("message");
-    const response = await fetch("http://217.71.129.139:4798/api/login", {
+    const response = await fetch("http://localhost:2017/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -112,7 +112,7 @@ async function reg(){
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch("http://217.71.129.139:4798/api/register", {
+            const response = await fetch("http://localhost:2017/api/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -134,7 +134,7 @@ async function reg(){
     });
 }
 async function logout() {
-    const response = await fetch("http://217.71.129.139:4798/api/logout", {
+    const response = await fetch("http://localhost:2017/api/logout", {
         method: "GET",
     });
     if (!response.ok) {
@@ -148,7 +148,7 @@ async function logout() {
 //HISTORY
 
 async function displayHistory() {  
-    const response = await fetch("http://217.71.129.139:4798/api/history", {
+    const response = await fetch("http://localhost:2017/api/history", {
         method: "GET",
     });
     
@@ -199,7 +199,7 @@ async function displayHistory() {
 
 window.onload = function() {
     displayHistory();
-    const savedTheme = sessionStorage.getItem('theme');
+    const savedTheme = localStorage.getItem('theme'); // Получаем сохраненную тему из localStorage
     const container1 = document.getElementById('container');
     const container2 = document.getElementById('container2');
     const input = document.getElementById('1');
@@ -209,45 +209,45 @@ window.onload = function() {
     const inplog = document.getElementById('firstName');
     const pass = document.getElementById('password');
 
-    if (savedTheme=='light-theme') {
-        document.body.className = savedTheme;
-        container1.className='container_light_theme';
-        input.className='light-theme';
-        input2.className='light-theme';
-        select.className='light-theme';
-        button.className='light-theme';
-        inplog.className='light-theme';
-        pass.className='light-theme';    
-            container2.className='container2_light_theme';
-    }  
-    else if (savedTheme=='dark-theme'){
-        document.body.className = savedTheme;
-        container1.className='container_dark_theme';
-        inplog.className='dark-theme';
-        pass.className='dark-theme'; 
-        
-        input.className='dark-theme';
-        input2.className='dark-theme';
-        select.className='dark-theme';
-        button.className='dark-theme';
-        
-            container2.className='container2_dark_theme';
-    
-    } 
-    else {
+    // Устанавливаем классы для элементов в зависимости от сохраненной темы
+    if (savedTheme === 'light-theme') {
         document.body.className = 'light-theme';
+        container1.className = 'container_light_theme';
+        container2.className = 'container2_light_theme'; // Обновляем класс container2
+        input.className = 'light-theme';
+        input2.className = 'light-theme';
+        select.className = 'light-theme';
+        button.className = 'light-theme';
+        inplog.className = 'light-theme';
+        pass.className = 'light-theme';
+    } else if (savedTheme === 'dark-theme') {
+        document.body.className = 'dark-theme';
+        container1.className = 'container_dark_theme';
+        container2.className = 'container2_dark_theme'; // Обновляем класс container2
+        input.className = 'dark-theme';
+        input2.className = 'dark-theme';
+        select.className = 'dark-theme';
+        button.className = 'dark-theme';
+        inplog.className = 'dark-theme';
+        pass.className = 'dark-theme';
+    } else {
+        // Если тема не сохранена, устанавливаем светлую тему по умолчанию
+        document.body.className = 'light-theme';
+        container1.className = 'container_light_theme';
+        container2.className = 'container2_light_theme';
     }
+
     if (container1) {
         container1.style.display = 'block';
     }
-    if (container2){
+    if (container2) {
         container2.style.display = 'block';
     }
-    console.log(savedTheme);
+    console.log('Текущая тема:', savedTheme);
 }
 
+
 async function theme_changer(){
-    document.getElementById('theme').value;
     const CurT = document.body.className;
     const container1 = document.getElementById('container');
     const container2 = document.getElementById('container2');
@@ -258,28 +258,25 @@ async function theme_changer(){
     
     if (CurT === 'light-theme') {
         document.body.className = 'dark-theme';
-        sessionStorage.setItem('theme','dark-theme');
-        container1.className='container_dark_theme';
-        input.className='dark-theme';
-        input2.className='dark-theme';
-        select.className='dark-theme';
-        button.className='dark-theme';
-        
-            container2.className='container2_dark_theme';
-        
+        localStorage.setItem('theme', 'dark-theme'); // изменили sessionStorage на localStorage
+        container1.className = 'container_dark_theme';
+        input.className = 'dark-theme';
+        input2.className = 'dark-theme';
+        select.className = 'dark-theme';
+        button.className = 'dark-theme';
+        container2.className = 'container2_dark_theme';
     } else {
         document.body.className = 'light-theme';
-        sessionStorage.setItem('theme','light-theme');
-        console.log(container1.classList);
-        console.log(container2.classList);
-        container1.className='container_light_theme';
-        input.className='light-theme';
-        input2.className='light-theme';
-        select.className='light-theme';
-        button.className='light-theme';
-            container2.className='container2_light_theme';
+        localStorage.setItem('theme', 'light-theme'); // изменили sessionStorage на localStorage
+        container1.className = 'container_light_theme';
+        input.className = 'light-theme';
+        input2.className = 'light-theme';
+        select.className = 'light-theme';
+        button.className = 'light-theme';
+        container2.className = 'container2_light_theme';
     }
 }
+
 //document.addEventListener("DOMContentLoaded", theme_changer);
 //PROFILE IMAGE
 /*async function image(){
