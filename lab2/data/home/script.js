@@ -198,8 +198,13 @@ async function displayHistory() {
 //THEME
 
 window.onload = function() {
-    displayHistory();
-    users_table();
+    if (window.location.href='/history'){
+        displayHistory();
+    }
+    if (window.location.href='/users'){
+        users_table();
+    }
+    
     const savedTheme = localStorage.getItem('theme'); // Получаем сохраненную тему из localStorage
     const container1 = document.getElementById('container');
     const container2 = document.getElementById('container2');
