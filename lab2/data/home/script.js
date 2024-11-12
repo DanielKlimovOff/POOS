@@ -3,7 +3,7 @@
 // 217.71.129.139:4798
 
  
-let ser_fetch = "http://217.71.129.139:4798";
+let ser_fetch = "http://localhost:2017";
 async function naming(name){
     
     const response = await fetch(ser_fetch+"/api/session_info", {
@@ -198,14 +198,15 @@ async function displayHistory() {
 //THEME
 
 window.onload = function() {
-    console.log(window.location);
-    if (window.location.href=='/history'){
+
+    console.log(window.location.href);
+    if (window.location.href==ser_fetch+'/history'){
         displayHistory();
     }
-    if (window.location.href=='/users'){
+    if (window.location.href==ser_fetch+'/users'){
         users_table();
     }
-    console.log(window.location);
+    console.log(window.location.href);
     const savedTheme = localStorage.getItem('theme'); // Получаем сохраненную тему из localStorage
     const container1 = document.getElementById('container');
     const container2 = document.getElementById('container2');
