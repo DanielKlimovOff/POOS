@@ -44,6 +44,12 @@ mod models {
     }
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub struct UsersJson {
+        pub users: Vec<User>,
+    }
+
+
+    #[derive(Debug, Deserialize, Serialize, Clone)]
     pub struct TestLoginJson {
         pub name: String,
         pub password: String,
@@ -54,6 +60,7 @@ mod models {
         pub id: i32,
         pub name: String,
         pub auth_hash: String,   
+        pub role: String,
     }
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -134,7 +141,17 @@ mod filters {
             .or(register(db.clone()))
             .or(history(db.clone()))
             .or(session_info(db.clone()))
+            .or(get_users(db.clone()))
         )
+    }
+
+    pub fn get_users(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("get_users")
+            .and(warp::path::end())
+            .and(warp::get())
+            .and(warp::cookie("session_hash"))
+            .and(with_db(db))
+            .and_then(handlers::get_users)
     }
 
     pub fn calculate(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -225,6 +242,13 @@ mod filters {
             .or(login_page())
             .or(history_page())
             .or(register_page())
+            .or(users_page())
+    }
+
+    pub fn users_page() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path::end()
+            .and(warp::get())
+            .and(warp::fs::file("./data/users/users.html"))
     }
 
     pub fn home_page() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -290,7 +314,7 @@ mod filters {
 }
 
 mod handlers {
-    use crate::models::{CalculateJson, Calculation, Database, HistoryJson, Session, TestLoginJson, User};
+    use crate::models::{CalculateJson, Calculation, Database, HistoryJson, Session, TestLoginJson, User, UsersJson};
     use http::Error;
     use warp::reply::Reply;
     use warp::http::StatusCode;
@@ -390,6 +414,28 @@ mod handlers {
         }
     }
 
+    pub async fn get_users(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let session_info = get_session_info(db.clone(), session_hash).await;
+        if let Err(mes) = session_info {
+            println!("{mes:?}");
+            return Ok("USERS GET ERRROR1".into_response());
+        }
+        let session_info = session_info.unwrap();
+
+        if session_info.is_auth == false {
+            return Ok(warp::reply::with_status(warp::reply(), StatusCode::from_u16(228).unwrap()).into_response());
+        }
+
+        let users = get_users_from_db(db.clone()).await;
+        if let Err(mes) = users {
+            println!("{mes:?}");
+            return Ok("USERS GET ERRROR2".into_response());
+        }
+        let users = users.unwrap();
+
+        Ok(warp::reply::json(&users).into_response())
+    }
+
     // pub async fn logout(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
     //     let db_response = db.lock().await.execute("update sessions set is_auth=false, user_id=?1, name=?2 where hash=?3;", params![
     //         user_info.id,
@@ -475,14 +521,29 @@ mod handlers {
         Ok(HistoryJson { history })
     }
 
+    async fn get_users_from_db(db: Database) -> Result<UsersJson, rusqlite::Error> {
+        let db = db.lock().await;
+        let mut stmt = db.prepare("select id, name, auth_hash, role from users")?;
+        let data = stmt.query_map(params![], |row| {
+            Ok(User{
+                id: row.get(0)?,
+                name: row.get(1)?,
+                auth_hash: row.get(2)?,
+                role: row.get(3)?,
+            })
+        })?;
+        let data: Vec<User> = data.map(|e| e.unwrap()).collect();
+        Ok(UsersJson { users: data })
+    }
 
     async fn get_user_info_by_login(db: Database, login_data: TestLoginJson) -> Result<User, rusqlite::Error> {
         let auth_hash = login_data.name + ":" + &login_data.password;
-        let db_response = db.lock().await.query_row("select id, name, auth_hash from users where auth_hash = ?1;", [&auth_hash],
+        let db_response = db.lock().await.query_row("select id, name, auth_hash, role from users where auth_hash = ?1;", [&auth_hash],
          |row| Ok(User{
             id: row.get(0)?,
             name: row.get(1)?,
             auth_hash: row.get(2)?,
+            role: row.get(3)?,
         }));
         match db_response {
             Ok(user_info) => Ok(user_info),
