@@ -199,6 +199,7 @@ async function displayHistory() {
 
 window.onload = function() {
     displayHistory();
+    users_table();
     const savedTheme = localStorage.getItem('theme'); // Получаем сохраненную тему из localStorage
     const container1 = document.getElementById('container');
     const container2 = document.getElementById('container2');
@@ -285,18 +286,40 @@ async function users_table() {
             method: "GET",
         });
         
-        if (!response.ok) {
+        if (response.status==228) {
             throw new Error(`Response status: ${response.status}`);
         }
-
         const userList = document.getElementById("users");
         userList.innerHTML = ''; 
 
         const data = await response.json();
-        
+        console.log(data);
         data.users.forEach(user => {
             const li = document.createElement('li');
+            const del = document.createElement('button');
+            del.textContent="Delete";
+            del.id=user.id;
             li.textContent = `ID: ${user.id}, Name: ${user.name}, Role: ${user.role}`;
+            
+            li.append(del);
+            del.onclick=async function (){
+                try {
+                    const response = await fetch("http://localhost:2017/api/delete_user", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "user_id": this.id
+                        },
+                    });
+                    
+                    if (response.status==228) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+  
+                } catch (error) {
+                    console.error("Error fetching users:", error);
+                } 
+            }
             userList.appendChild(li);
         });
         
@@ -304,6 +327,32 @@ async function users_table() {
     } catch (error) {
         console.error("Error fetching users:", error);
     }
+    /*try {
+        const response = await fetch("http://localhost:2017/api/delete_user", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "user_id": id
+            },
+        });
+        
+        if (response.status==228) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        const userList = document.getElementById("users");
+        userList.innerHTML = ''; 
+        data.users.forEach(user => {
+            const li = document.createElement('li');
+            const del = doument.createElement('button');
+            del.textContent="Delete";
+
+            userList.appendChild(li);
+        });
+        
+       
+    } catch (error) {
+        console.error("Error fetching users:", error);
+    }*/
 }
 
 //document.addEventListener("DOMContentLoaded", theme_changer);
