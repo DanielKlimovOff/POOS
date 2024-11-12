@@ -5,8 +5,8 @@
  
 
 async function naming(name){
-    
-    const response = await fetch("http://localhost:2017/api/session_info", {
+    let ser_fetch = "http://217.71.129.139:4798";
+    const response = await fetch(ser_fetch+"/session_info", {
         method: "GET",
     });
     
@@ -33,7 +33,7 @@ async function submitbtn() {
     let val2 = +document.getElementById("2").value;
     let result;
     if (val1!="" && val2!=""){
-        const response = await fetch("http://localhost:2017/api/calculate", {
+        const response = await fetch(ser_fetch+"/api/calculate", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -63,7 +63,7 @@ async function submitbtn() {
 }
 //HISTORY
 async function saveOperation(operation) {
-        const response = await fetch("http://localhost:2017/api/history", {
+        const response = await fetch(ser_fetch+"/api/history", {
             method: "GET",
         });
         
@@ -82,7 +82,7 @@ async function login(){
     let firstName=document.getElementById("firstName").value;
     let password=document.getElementById("password").value;
     let label =document.getElementById("message");
-    const response = await fetch("http://localhost:2017/api/login", {
+    const response = await fetch(ser_fetch+"/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -113,7 +113,7 @@ async function reg(){
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch("http://localhost:2017/api/register", {
+            const response = await fetch(ser_fetch+"/api/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -135,7 +135,7 @@ async function reg(){
     });
 }
 async function logout() {
-    const response = await fetch("http://localhost:2017/api/logout", {
+    const response = await fetch(ser_fetch+"/api/logout", {
         method: "GET",
     });
     if (!response.ok) {
@@ -149,7 +149,7 @@ async function logout() {
 //HISTORY
 
 async function displayHistory() {  
-    const response = await fetch("http://localhost:2017/api/history", {
+    const response = await fetch(ser_fetch+"/api/history", {
         method: "GET",
     });
     
@@ -282,7 +282,7 @@ async function theme_changer(){
 
 async function users_table() {
     try {
-        const response = await fetch("http://localhost:2017/api/get_users", {
+        const response = await fetch(ser_fetch+"/api/get_users", {
             method: "GET",
         });
         
@@ -304,7 +304,7 @@ async function users_table() {
             li.append(del);
             del.onclick=async function (){
                 try {
-                    const response = await fetch("http://localhost:2017/api/delete_user", {
+                    const response = await fetch(ser_fetch+"/api/delete_user", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -327,34 +327,9 @@ async function users_table() {
     } catch (error) {
         console.error("Error fetching users:", error);
     }
-    /*try {
-        const response = await fetch("http://localhost:2017/api/delete_user", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "user_id": id
-            },
-        });
-        
-        if (response.status==228) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-        const userList = document.getElementById("users");
-        userList.innerHTML = ''; 
-        data.users.forEach(user => {
-            const li = document.createElement('li');
-            const del = doument.createElement('button');
-            del.textContent="Delete";
-
-            userList.appendChild(li);
-        });
-        
-       
-    } catch (error) {
-        console.error("Error fetching users:", error);
-    }*/
+    
 }
-
+document.addEventListener("DOMContentLoaded", users_table);
 //document.addEventListener("DOMContentLoaded", theme_changer);
 //PROFILE IMAGE
 /*async function image(){
