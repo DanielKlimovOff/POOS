@@ -16,6 +16,7 @@ async fn main() {
     let routes = api.with(warp::log("site"));
 
     warp::serve(routes).run(([127, 0, 0, 1], 2017)).await;
+    // warp::serve(routes).run(([172, 17, 9, 223], 3030)).await;
 }
 
 mod models {
@@ -471,8 +472,9 @@ mod handlers {
             return Ok(warp::reply::with_status(warp::reply(), StatusCode::from_u16(229).unwrap()).into_response());
         }
 
+        println!("uid delete user{user_id}");
         let db_response = db.lock().await.execute("delete from users where id = ?1;",
-            [5]);
+            [user_id]);
         match db_response {
             Ok(_) => Ok(warp::reply().into_response()),
             Err(massage) => Ok(warp::reply::with_status(massage.to_string(),
@@ -612,7 +614,8 @@ mod handlers {
 
     async fn register_new_user(db: Database, register_data: &TestLoginJson) -> Result<(), rusqlite::Error> {
         let auth_hash = register_data.clone().name + ":" + &register_data.password;
-        let db_response = db.lock().await.execute("insert into users(name, auth_hash) values(?1, ?2);", [&register_data.name, &auth_hash]);
+        let db_response = db.lock().await.execute("insert into users(name, auth_hash, role) values(?1, ?2, ?3);",
+         [&register_data.name, &auth_hash, "normise"]);
         match db_response {
             Ok(_) => Ok(()),
             Err(massage) => Err(massage),
