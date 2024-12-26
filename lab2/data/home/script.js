@@ -75,7 +75,24 @@ async function saveOperation(operation) {
         const trimmed = `${json.num1} ${json.operator_id} ${json.num2}${json.result}`;
         console.log(history);
 }
+async function clearHistory(){
+    try {
+        const response = await fetch(ser_fetch + "/api/delete_history", {
+            method: "POST",
+        });
 
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const historyList = document.getElementById("history");
+        historyList.innerHTML = "";
+        alert("History cleared successfully!");
+    } catch (error) {
+        console.error("Failed to clear history:", error);
+        alert("Error: Unable to clear history. Please try again.");
+    }
+}
 //LOGIN
 async function login(){
 
