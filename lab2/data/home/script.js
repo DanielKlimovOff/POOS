@@ -121,6 +121,64 @@ async function login(){
 }
 document.addEventListener("DOMContentLoaded", naming);
 
+//DUMP
+async function downloadDump(){
+    try {
+        const response = await fetch(ser_fetch+"/api/export_users", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/octet-stream"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+
+        link.download = 'users_dump.sql';
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Failed to download dump:", error);
+    }
+}
+
+async function uploadDump(event) {
+    event.preventDefault(); 
+    const fileInput = document.getElementById('file-upload');
+    const selectedFile = fileInput.files[0]; 
+    if (!selectedFile) {
+        alert("Please select a file before uploading.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+        const response = await fetch(`${ser_fetch}/api/import_users`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+    } catch (error) {
+        console.error('Error uploading dump file:', error);
+    }
+}
+
 //REGISTRATION
 async function reg(){
     document.getElementById('registrationForm').addEventListener('submit', async function(event) {
