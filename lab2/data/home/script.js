@@ -75,7 +75,24 @@ async function saveOperation(operation) {
         const trimmed = `${json.num1} ${json.operator_id} ${json.num2}${json.result}`;
         console.log(history);
 }
+async function clearHistory(){
+    try {
+        const response = await fetch(ser_fetch + "/api/delete_history", {
+            method: "POST",
+        });
 
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const historyList = document.getElementById("history");
+        historyList.innerHTML = "";
+        alert("History cleared successfully!");
+    } catch (error) {
+        console.error("Failed to clear history:", error);
+        alert("Error: Unable to clear history. Please try again.");
+    }
+}
 //LOGIN
 async function login(){
 
@@ -103,6 +120,64 @@ async function login(){
     console.log(response);
 }
 document.addEventListener("DOMContentLoaded", naming);
+
+//DUMP
+async function downloadDump(){
+    try {
+        const response = await fetch(ser_fetch+"/api/export_users", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/octet-stream"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+
+        link.download = 'users_dump.sql';
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Failed to download dump:", error);
+    }
+}
+
+async function uploadDump(event) {
+    event.preventDefault(); 
+    const fileInput = document.getElementById('file-upload');
+    const selectedFile = fileInput.files[0]; 
+    if (!selectedFile) {
+        alert("Please select a file before uploading.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+        const response = await fetch(`${ser_fetch}/api/import_users`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+    } catch (error) {
+        console.error('Error uploading dump file:', error);
+    }
+}
 
 //REGISTRATION
 async function reg(){
