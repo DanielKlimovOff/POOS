@@ -141,6 +141,9 @@ mod filters {
             .or(logout(db.clone()))
             .or(register(db.clone()))
             .or(delete_history(db.clone()))
+            .or(export_users(db.clone()))
+            // .or(import_users(db.clone()))
+
             .or(history(db.clone()))
             .or(session_info(db.clone()))
             .or(get_users(db.clone()))
@@ -239,6 +242,15 @@ mod filters {
             .and(warp::cookie("session_hash"))
             .and(with_db(db))
             .and_then(handlers::delete_history)
+    }
+
+    pub fn export_users(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("export_users")
+            .and(warp::path::end())
+            .and(warp::get())
+            .and(warp::cookie("session_hash"))
+            .and(with_db(db))
+            .and_then(handlers::export_users)
     }
 
     pub fn delete_cookies(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -561,6 +573,11 @@ mod handlers {
             Ok(history) => Ok(warp::reply::json(&history).into_response()),
             Err(err) => Ok(warp::reply::with_header(warp::reply::with_status("HISTORY ERROR", StatusCode::INTERNAL_SERVER_ERROR), "err message", err.to_string()).into_response())
         }
+    }
+
+    pub async fn export_users(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let users = get_users_from_db(db.clone()).await.unwrap();
+        Ok(warp::reply::json(&users))
     }
 
     async fn get_history_by_session(db: Database, session_id: i32) -> Result<HistoryJson, rusqlite::Error> {
