@@ -151,7 +151,7 @@ async function downloadDump(){
     }
 }
 
-async function uploadDump(event) {
+/*async function uploadDump(event) {
     event.preventDefault(); 
     const fileInput = document.getElementById('file-upload');
     const selectedFile = fileInput.files[0]; 
@@ -177,7 +177,7 @@ async function uploadDump(event) {
     } catch (error) {
         console.error('Error uploading dump file:', error);
     }
-}
+}*/
 
 //REGISTRATION
 async function reg(){
