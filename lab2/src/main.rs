@@ -140,6 +140,7 @@ mod filters {
             .or(login(db.clone()))
             .or(logout(db.clone()))
             .or(register(db.clone()))
+            .or(delete_history(db.clone()))
             .or(history(db.clone()))
             .or(session_info(db.clone()))
             .or(get_users(db.clone()))
@@ -229,6 +230,15 @@ mod filters {
             .and(warp::cookie("session_hash"))
             .and(with_db(db))
             .and_then(handlers::history)
+    }
+
+    pub fn delete_history(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+        warp::path("delete_history")
+            .and(warp::path::end())
+            .and(warp::post())
+            .and(warp::cookie("session_hash"))
+            .and(with_db(db))
+            .and_then(handlers::delete_history)
     }
 
     pub fn delete_cookies(db: Database) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
@@ -531,6 +541,28 @@ mod handlers {
         }
     }
 
+    pub async fn delete_history(session_hash: String, db: Database) -> Result<impl warp::Reply, warp::Rejection> {
+        let session_info = get_session_info(db.clone(), session_hash).await;
+        if let Err(mes) = session_info {
+            println!("{mes:?}");
+            return Ok("SESSION GET ERRROR".into_response());
+        }
+        let session_info = session_info.unwrap();
+
+        let result;
+
+        if session_info.is_auth {
+            result = delete_history_by_user_id(db.clone(), session_info.user_id.unwrap()).await;
+        } else {
+            result = delete_history_by_session(db.clone(), session_info.id).await;
+        }
+
+        match result {
+            Ok(history) => Ok(warp::reply::json(&history).into_response()),
+            Err(err) => Ok(warp::reply::with_header(warp::reply::with_status("HISTORY ERROR", StatusCode::INTERNAL_SERVER_ERROR), "err message", err.to_string()).into_response())
+        }
+    }
+
     async fn get_history_by_session(db: Database, session_id: i32) -> Result<HistoryJson, rusqlite::Error> {
         let db = db.lock().await;
         let mut stmt = db.prepare("select id, num1, num2, operator_id, result, session_id, user_id from calculations where session_id=?1")?;
@@ -547,6 +579,17 @@ mod handlers {
         })?;
         let history: Vec<Calculation> = history.map(|e| e.unwrap()).collect();
         Ok(HistoryJson { history })
+    }
+
+
+    async fn delete_history_by_session(db: Database, session_id: i32) -> Result<(), rusqlite::Error> {
+        let mut stmt = db.lock().await.execute("delete from calculations where session_id=?1", [session_id]);
+        Ok(())
+    }
+
+    async fn delete_history_by_user_id(db: Database, user_id: i32) -> Result<(), rusqlite::Error> {
+        let mut stmt = db.lock().await.execute("delete from calculations where user_id=?1", [user_id]);
+        Ok(())
     }
 
     async fn get_history_by_user_id(db: Database, user_id: i32) -> Result<HistoryJson, rusqlite::Error> {
